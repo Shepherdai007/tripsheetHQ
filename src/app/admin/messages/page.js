@@ -107,12 +107,26 @@ export default function AdminMessagesPage() {
     }
   };
 
-  const inputStyle = { width: "100%", padding: "0.6rem", border: "1px solid #ccc", borderRadius: "4px", fontSize: "1rem", boxSizing: "border-box" };
-  const labelStyle = { display: "block", marginBottom: "0.25rem", fontSize: "0.9rem", color: "#333", fontWeight: "500" };
+  const inputStyle = {
+    width: "100%",
+    padding: "0.6rem",
+    border: "1px solid rgba(255,255,255,0.3)",
+    borderRadius: "4px",
+    fontSize: "1rem",
+    boxSizing: "border-box",
+    backgroundColor: "rgba(255,255,255,0.9)",
+  };
+  const labelStyle = {
+    display: "block",
+    marginBottom: "0.25rem",
+    fontSize: "0.9rem",
+    color: "#f0f0f0",
+    fontWeight: "500",
+  };
   const navButtonStyle = {
     padding: "0.5rem 1rem",
-    backgroundColor: "#ffffff",
-    border: "1px solid #ddd",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    border: "1px solid rgba(255,255,255,0.4)",
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "0.85rem",
@@ -130,108 +144,188 @@ export default function AdminMessagesPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
-      {/* Top nav bar: section links + logout */}
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/images/messages-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        position: "relative",
+      }}
+    >
+      {/* Dark overlay so text stays readable */}
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "0.5rem",
-          marginBottom: "1.5rem",
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(0,0,0,0.45)",
         }}
-      >
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          <button style={navButtonStyle} onClick={() => router.push("/admin")}>
-            Trips
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
-            Documents
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
-            Messages
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
-            Branding
-          </button>
-        </div>
-        <button
-          onClick={handleLogout}
+      />
+
+      {/* Floating content */}
+      <div style={{ position: "relative", zIndex: 1, padding: "1.5rem" }}>
+        <div
           style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#ffffff",
-            border: "1px solid #ddd",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "0.85rem",
-            fontWeight: "600",
-            color: "#b91c1c",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "1.5rem",
           }}
         >
-          Log Out
-        </button>
-      </div>
-
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#1a1a1a" }}>
-        Message a Driver
-      </h1>
-
-      <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", maxWidth: "500px", marginBottom: "1.5rem" }}>
-        <form onSubmit={handleSend}>
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={labelStyle}>Driver</label>
-            <select value={selectedDriver} onChange={(e) => setSelectedDriver(e.target.value)} style={inputStyle}>
-              <option value="">Select a driver...</option>
-              {drivers.map((driver) => (
-                <option key={driver.id} value={driver.id}>
-                  {driver.name} ({driver.email})
-                </option>
-              ))}
-            </select>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button style={navButtonStyle} onClick={() => router.push("/admin")}>
+              Trips
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
+              Documents
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
+              Messages
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
+              Branding
+            </button>
           </div>
-
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={labelStyle}>Message</label>
-            <textarea
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              rows={4}
-              style={inputStyle}
-              placeholder="e.g. Pickup delayed 2 hours, new ETA 4pm"
-            />
-          </div>
-
-          {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
-          {message && <p style={{ color: "#1a7d36", fontSize: "0.9rem", marginBottom: "1rem" }}>{message}</p>}
-
           <button
-            type="submit"
-            disabled={sending}
-            style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "4px", fontSize: "1rem", fontWeight: "600", cursor: "pointer" }}
+            onClick={handleLogout}
+            style={{
+              padding: "0.5rem 1rem",
+              backgroundColor: "rgba(255,255,255,0.9)",
+              border: "1px solid rgba(255,255,255,0.4)",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              color: "#b91c1c",
+            }}
           >
-            {sending ? "Sending..." : "Send Message"}
+            Log Out
           </button>
-        </form>
-      </div>
+        </div>
 
-      <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", maxWidth: "500px" }}>
-        <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Recent Messages</h2>
-        {sentMessages.length === 0 ? (
-          <p style={{ color: "#666", fontSize: "0.9rem" }}>No messages sent yet.</p>
-        ) : (
-          sentMessages.map((msg) => (
-            <div key={msg.id} style={{ padding: "0.75rem 0", borderBottom: "1px solid #eee" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <p style={{ fontSize: "0.85rem", fontWeight: "600", color: "#1a1a1a" }}>{msg.driverName}</p>
-                <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: msg.readAt ? "#e6f4ea" : "#fef3e0", color: msg.readAt ? "#1a7d36" : "#b26a00", fontWeight: "600" }}>
-                  {msg.readAt ? "Read" : "Delivered"}
-                </span>
-              </div>
-              <p style={{ fontSize: "0.9rem", color: "#333" }}>{msg.text}</p>
+        <h1
+          style={{
+            fontSize: "1.75rem",
+            fontWeight: "bold",
+            marginBottom: "1.5rem",
+            color: "#ffffff",
+            textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+          }}
+        >
+          Message a Driver
+        </h1>
+
+        <div
+          style={{
+            backgroundColor: "rgba(20,20,20,0.55)",
+            backdropFilter: "blur(6px)",
+            borderRadius: "8px",
+            padding: "1.5rem",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            maxWidth: "500px",
+            marginBottom: "1.5rem",
+            border: "1px solid rgba(255,255,255,0.15)",
+          }}
+        >
+          <form onSubmit={handleSend}>
+            <div style={{ marginBottom: "1rem" }}>
+              <label style={labelStyle}>Driver</label>
+              <select
+                value={selectedDriver}
+                onChange={(e) => setSelectedDriver(e.target.value)}
+                style={inputStyle}
+              >
+                <option value="">Select a driver...</option>
+                {drivers.map((driver) => (
+                  <option key={driver.id} value={driver.id}>
+                    {driver.name} ({driver.email})
+                  </option>
+                ))}
+              </select>
             </div>
-          ))
-        )}
+
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label style={labelStyle}>Message</label>
+              <textarea
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                rows={4}
+                style={inputStyle}
+                placeholder="e.g. Pickup delayed 2 hours, new ETA 4pm"
+              />
+            </div>
+
+            {error && <p style={{ color: "#ff6b6b", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
+            {message && <p style={{ color: "#4ade80", fontSize: "0.9rem", marginBottom: "1rem" }}>{message}</p>}
+
+            <button
+              type="submit"
+              disabled={sending}
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                backgroundColor: "#1a56db",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                fontSize: "1rem",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              {sending ? "Sending..." : "Send Message"}
+            </button>
+          </form>
+        </div>
+
+        <div
+          style={{
+            backgroundColor: "rgba(20,20,20,0.55)",
+            backdropFilter: "blur(6px)",
+            borderRadius: "8px",
+            padding: "1.5rem",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            maxWidth: "500px",
+            border: "1px solid rgba(255,255,255,0.15)",
+          }}
+        >
+          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#ffffff" }}>
+            Recent Messages
+          </h2>
+          {sentMessages.length === 0 ? (
+            <p style={{ color: "#ddd", fontSize: "0.9rem" }}>No messages sent yet.</p>
+          ) : (
+            sentMessages.map((msg) => (
+              <div
+                key={msg.id}
+                style={{
+                  padding: "0.75rem 0",
+                  borderBottom: "1px solid rgba(255,255,255,0.15)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <p style={{ fontSize: "0.85rem", fontWeight: "600", color: "#ffffff" }}>{msg.driverName}</p>
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      padding: "0.15rem 0.5rem",
+                      borderRadius: "10px",
+                      backgroundColor: msg.readAt ? "#e6f4ea" : "#fef3e0",
+                      color: msg.readAt ? "#1a7d36" : "#b26a00",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {msg.readAt ? "Read" : "Delivered"}
+                  </span>
+                </div>
+                <p style={{ fontSize: "0.9rem", color: "#eee" }}>{msg.text}</p>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
