@@ -65,68 +65,116 @@ export default function MessagesPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
-      <button
-        onClick={() => router.push("/dashboard")}
-        style={{ background: "none", border: "none", color: "#1a56db", fontSize: "0.9rem", fontWeight: "600", cursor: "pointer", marginBottom: "1rem", padding: 0 }}
-      >
-        ← Back to dashboard
-      </button>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/images/driver-messages-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(0,0,0,0.45)",
+        }}
+      />
 
-      <h1 style={{ fontSize: "1.4rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#1a1a1a" }}>
-        Messages
-      </h1>
+      <div style={{ position: "relative", zIndex: 1, padding: "1.5rem" }}>
+        <button
+          onClick={() => router.push("/dashboard")}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#93c5fd",
+            fontSize: "0.9rem",
+            fontWeight: "600",
+            cursor: "pointer",
+            marginBottom: "1rem",
+            padding: 0,
+            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+          }}
+        >
+          ← Back to dashboard
+        </button>
 
-      {messages.length === 0 ? (
-        <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-          <p style={{ color: "#666" }}>No messages yet.</p>
-        </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              style={{
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "1rem 1.25rem",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                borderLeft: msg.readAt ? "4px solid transparent" : "4px solid #1a56db",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                <span style={{ fontSize: "0.8rem", color: "#999" }}>{formatDateTime(msg.createdAt)}</span>
-                <button
-                  onClick={() => handleDelete(msg.id)}
-                  style={{ background: "none", border: "none", color: "#d32f2f", fontSize: "0.8rem", fontWeight: "600", cursor: "pointer", padding: 0 }}
-                >
-                  Delete
-                </button>
+        <h1
+          style={{
+            fontSize: "1.6rem",
+            fontWeight: "bold",
+            marginBottom: "1.5rem",
+            color: "#ffffff",
+            textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+          }}
+        >
+          Messages
+        </h1>
+
+        {messages.length === 0 ? (
+          <div
+            style={{
+              backgroundColor: "rgba(20,20,20,0.55)",
+              backdropFilter: "blur(6px)",
+              borderRadius: "8px",
+              padding: "1.5rem",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}
+          >
+            <p style={{ color: "#ddd" }}>No messages yet.</p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                style={{
+                  backgroundColor: "rgba(20,20,20,0.55)",
+                  backdropFilter: "blur(6px)",
+                  borderRadius: "8px",
+                  padding: "1rem 1.25rem",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderLeft: msg.readAt ? "4px solid transparent" : "4px solid #60a5fa",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
+                  <span style={{ fontSize: "0.8rem", color: "#ccc" }}>{formatDateTime(msg.createdAt)}</span>
+                  <button
+                    onClick={() => handleDelete(msg.id)}
+                    style={{ background: "none", border: "none", color: "#ff6b6b", fontSize: "0.8rem", fontWeight: "600", cursor: "pointer", padding: 0 }}
+                  >
+                    Delete
+                  </button>
+                </div>
+                <p style={{ fontSize: "0.95rem", color: "#ffffff", fontWeight: msg.readAt ? "400" : "600" }}>
+                  {msg.text}
+                </p>
+                {msg.fileUrl && (
+                  <a
+                    href={msg.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-block",
+                      marginTop: "0.6rem",
+                      fontSize: "0.85rem",
+                      color: "#93c5fd",
+                      fontWeight: "600",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    📎 {msg.fileName || "View attachment"}
+                  </a>
+                )}
               </div>
-              <p style={{ fontSize: "0.95rem", color: "#1a1a1a", fontWeight: msg.readAt ? "400" : "600" }}>
-                {msg.text}
-              </p>
-              {msg.fileUrl && (
-                <a
-                  href={msg.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-block",
-                    marginTop: "0.6rem",
-                    fontSize: "0.85rem",
-                    color: "#1a56db",
-                    fontWeight: "600",
-                    textDecoration: "underline",
-                  }}
-                >
-                  📎 {msg.fileName || "View attachment"}
-                </a>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
