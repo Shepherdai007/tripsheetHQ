@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, collection, query, where, getDocs, addDoc, orderBy } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db } from "@/lib/firebase";
 
 export default function AdminMessagesPage() {
@@ -14,6 +15,7 @@ export default function AdminMessagesPage() {
   const [drivers, setDrivers] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState("");
   const [messageText, setMessageText] = useState("");
+  const [attachedFile, setAttachedFile] = useState(null);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -88,17 +90,31 @@ export default function AdminMessagesPage() {
     try {
       const driverInfo = drivers.find((d) => d.id === selectedDriver);
 
+      let fileUrl = "";
+      let fileName = "";
+
+      if (attachedFile) {
+        const storage = getStorage();
+        const fileRef = ref(storage, `message-attachments/${selectedDriver}/${Date.now()}_${attachedFile.name}`);
+        await uploadBytes(fileRef, attachedFile);
+        fileUrl = await getDownloadURL(fileRef);
+        fileName = attachedFile.name;
+      }
+
       await addDoc(collection(db, "messages"), {
         driverId: selectedDriver,
         driverName: driverInfo?.name || "",
         companyId: myCompanyId,
         text: messageText.trim(),
+        fileUrl: fileUrl,
+        fileName: fileName,
         createdAt: new Date().toISOString(),
       });
 
       setMessage(`Message sent to ${driverInfo?.name || "driver"}.`);
       setMessageText("");
       setSelectedDriver("");
+      setAttachedFile(null);
       await loadSentMessages();
     } catch (err) {
       setError(err.message);
@@ -154,7 +170,6 @@ export default function AdminMessagesPage() {
         position: "relative",
       }}
     >
-      {/* Dark overlay so text stays readable */}
       <div
         style={{
           position: "absolute",
@@ -163,7 +178,6 @@ export default function AdminMessagesPage() {
         }}
       />
 
-      {/* Floating content */}
       <div style={{ position: "relative", zIndex: 1, padding: "1.5rem" }}>
         <div
           style={{
@@ -247,7 +261,7 @@ export default function AdminMessagesPage() {
               </select>
             </div>
 
-            <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ marginBottom: "1rem" }}>
               <label style={labelStyle}>Message</label>
               <textarea
                 value={messageText}
@@ -256,6 +270,20 @@ export default function AdminMessagesPage() {
                 style={inputStyle}
                 placeholder="e.g. Pickup delayed 2 hours, new ETA 4pm"
               />
+            </div>
+
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label style={labelStyle}>Attach a file (optional)</label>
+              <input
+                type="file"
+                onChange={(e) => setAttachedFile(e.target.files[0])}
+                className="file-upload-btn"
+              />
+              {attachedFile && (
+                <p style={{ fontSize: "0.8rem", color: "#ddd", marginTop: "0.4rem" }}>
+                  Selected: {attachedFile.name}
+                </p>
+              )}
             </div>
 
             {error && <p style={{ color: "#ff6b6b", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
@@ -322,6 +350,16 @@ export default function AdminMessagesPage() {
                   </span>
                 </div>
                 <p style={{ fontSize: "0.9rem", color: "#eee" }}>{msg.text}</p>
+                {msg.fileUrl && (
+                  <a
+                    href={msg.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: "0.8rem", color: "#93c5fd", textDecoration: "underline" }}
+                  >
+                    📎 {msg.fileName || "Attachment"}
+                  </a>
+                )}
               </div>
             ))
           )}

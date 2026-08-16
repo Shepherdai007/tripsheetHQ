@@ -106,6 +106,23 @@ export default function MessagesPage() {
               <p style={{ fontSize: "0.95rem", color: "#1a1a1a", fontWeight: msg.readAt ? "400" : "600" }}>
                 {msg.text}
               </p>
+              {msg.fileUrl && (
+                <a
+                  href={msg.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-block",
+                    marginTop: "0.6rem",
+                    fontSize: "0.85rem",
+                    color: "#1a56db",
+                    fontWeight: "600",
+                    textDecoration: "underline",
+                  }}
+                >
+                  📎 {msg.fileName || "View attachment"}
+                </a>
+              )}
             </div>
           ))}
         </div>
