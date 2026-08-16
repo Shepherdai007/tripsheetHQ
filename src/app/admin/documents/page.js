@@ -96,12 +96,12 @@ export default function AdminDocumentsPage() {
     }
   };
 
-  const inputStyle = { width: "100%", padding: "0.6rem", border: "1px solid #ccc", borderRadius: "4px", fontSize: "1rem", boxSizing: "border-box" };
-  const labelStyle = { display: "block", marginBottom: "0.25rem", fontSize: "0.9rem", color: "#333", fontWeight: "500" };
+  const inputStyle = { width: "100%", padding: "0.6rem", border: "1px solid rgba(255,255,255,0.4)", borderRadius: "8px", fontSize: "1rem", boxSizing: "border-box", background: "rgba(255,255,255,0.9)", color: "#1a1a1a" };
+  const labelStyle = { display: "block", marginBottom: "0.25rem", fontSize: "0.9rem", color: "#f1f1f1" };
   const navButtonStyle = {
     padding: "0.5rem 1rem",
-    backgroundColor: "#ffffff",
-    border: "1px solid #ddd",
+    backgroundColor: "rgba(255,255,255,0.85)",
+    border: "none",
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "0.85rem",
@@ -119,100 +119,132 @@ export default function AdminDocumentsPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
-      {/* Top nav bar: section links + logout */}
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/images/admin-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+        padding: "1.5rem",
+        position: "relative",
+      }}
+    >
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "0.5rem",
-          marginBottom: "1.5rem",
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(10,15,25,0.55) 0%, rgba(10,15,25,0.7) 100%)",
         }}
-      >
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          <button style={navButtonStyle} onClick={() => router.push("/admin")}>
-            Trips
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
-            Documents
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
-            Messages
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
-            Branding
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/billing")}>
-            Billing
-          </button>
-        </div>
-        <button
-          onClick={handleLogout}
+      />
+
+      <div style={{ position: "relative" }}>
+        {/* Top nav bar: section links + logout */}
+        <div
           style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#ffffff",
-            border: "1px solid #ddd",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "0.85rem",
-            fontWeight: "600",
-            color: "#b91c1c",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "1.5rem",
           }}
         >
-          Log Out
-        </button>
-      </div>
-
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#1a1a1a" }}>
-        Send ACI/ACE Document to Driver
-      </h1>
-
-      <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", maxWidth: "500px" }}>
-        <form onSubmit={handleUpload}>
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={labelStyle}>Driver</label>
-            <select value={selectedDriver} onChange={(e) => setSelectedDriver(e.target.value)} style={inputStyle}>
-              <option value="">Select a driver...</option>
-              {drivers.map((driver) => (
-                <option key={driver.id} value={driver.id}>
-                  {driver.name} ({driver.email})
-                </option>
-              ))}
-            </select>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button style={navButtonStyle} onClick={() => router.push("/admin")}>
+              Trips
+            </button>
+            <button style={{ ...navButtonStyle, color: "#1a56db" }} onClick={() => router.push("/admin/documents")}>
+              Documents
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
+              Messages
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
+              Branding
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/billing")}>
+              Billing
+            </button>
           </div>
-
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={labelStyle}>Document Type</label>
-            <select value={docType} onChange={(e) => setDocType(e.target.value)} style={inputStyle}>
-              <option>ACE</option>
-              <option>ACI</option>
-              <option>Other</option>
-            </select>
-          </div>
-
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={labelStyle}>File (PDF or image)</label>
-            <input
-              type="file"
-              accept="application/pdf,image/*"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="file-upload-btn"
-            />
-          </div>
-
-          {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
-          {message && <p style={{ color: "#1a7d36", fontSize: "0.9rem", marginBottom: "1rem" }}>{message}</p>}
-
           <button
-            type="submit"
-            disabled={uploading}
-            style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "4px", fontSize: "1rem", fontWeight: "600", cursor: "pointer" }}
+            onClick={handleLogout}
+            style={{
+              padding: "0.5rem 1rem",
+              backgroundColor: "rgba(255,255,255,0.85)",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              color: "#b91c1c",
+            }}
           >
-            {uploading ? "Uploading..." : "Send Document"}
+            Log Out
           </button>
-        </form>
+        </div>
+
+        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
+          Send ACI/ACE Document to Driver
+        </h1>
+
+        <div
+          style={{
+            background: "rgba(255,255,255,0.14)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            borderRadius: "12px",
+            padding: "1.5rem",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+            maxWidth: "500px",
+          }}
+        >
+          <form onSubmit={handleUpload}>
+            <div style={{ marginBottom: "1rem" }}>
+              <label style={labelStyle}>Driver</label>
+              <select value={selectedDriver} onChange={(e) => setSelectedDriver(e.target.value)} style={inputStyle}>
+                <option value="">Select a driver...</option>
+                {drivers.map((driver) => (
+                  <option key={driver.id} value={driver.id}>
+                    {driver.name} ({driver.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: "1rem" }}>
+              <label style={labelStyle}>Document Type</label>
+              <select value={docType} onChange={(e) => setDocType(e.target.value)} style={inputStyle}>
+                <option>ACE</option>
+                <option>ACI</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label style={labelStyle}>File (PDF or image)</label>
+              <input
+                type="file"
+                accept="application/pdf,image/*"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="file-upload-btn"
+              />
+            </div>
+
+            {error && <p style={{ color: "#ffb4b4", fontSize: "0.9rem", marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{error}</p>}
+            {message && <p style={{ color: "#9dffb0", fontSize: "0.9rem", marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{message}</p>}
+
+            <button
+              type="submit"
+              disabled={uploading}
+              style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "6px", fontSize: "1rem", fontWeight: "600", cursor: "pointer", boxShadow: "0 4px 14px rgba(26,86,219,0.5)" }}
+            >
+              {uploading ? "Uploading..." : "Send Document"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

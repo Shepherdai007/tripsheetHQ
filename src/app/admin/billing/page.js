@@ -86,8 +86,8 @@ export default function AdminBillingPage() {
 
   const navButtonStyle = {
     padding: "0.5rem 1rem",
-    backgroundColor: "#ffffff",
-    border: "1px solid #ddd",
+    backgroundColor: "rgba(255,255,255,0.85)",
+    border: "none",
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "0.85rem",
@@ -109,135 +109,174 @@ export default function AdminBillingPage() {
   const planName = PLAN_NAMES[company?.planPriceId] || null;
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
-      {/* Top nav bar: section links + logout */}
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/images/billing-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+        padding: "1.5rem",
+        position: "relative",
+      }}
+    >
+      {/* darken the photo a touch so cards and text stay readable */}
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "0.5rem",
-          marginBottom: "1.5rem",
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(10,15,25,0.55) 0%, rgba(10,15,25,0.7) 100%)",
         }}
-      >
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          <button style={navButtonStyle} onClick={() => router.push("/admin")}>
-            Trips
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
-            Documents
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
-            Messages
-          </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
-            Branding
-          </button>
-          <button style={{ ...navButtonStyle, borderColor: "#1a56db", color: "#1a56db" }} onClick={() => router.push("/admin/billing")}>
-            Billing
-          </button>
-        </div>
-        <button
-          onClick={handleLogout}
+      />
+
+      <div style={{ position: "relative" }}>
+        {/* Top nav bar: section links + logout */}
+        <div
           style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#ffffff",
-            border: "1px solid #ddd",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "0.85rem",
-            fontWeight: "600",
-            color: "#b91c1c",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "1.5rem",
           }}
         >
-          Log Out
-        </button>
-      </div>
-
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#1a1a1a" }}>
-        Billing & Subscription
-      </h1>
-
-      <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", maxWidth: "500px" }}>
-        {!hasSubscription ? (
-          <>
-            <p style={{ fontSize: "0.95rem", color: "#333", marginBottom: "1.25rem" }}>
-              You don&apos;t have an active plan yet. Choose a plan to start your 7-day free trial.
-            </p>
-            <button
-              onClick={() => router.push("/pricing")}
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                backgroundColor: "#1a56db",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                fontSize: "1rem",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
-            >
-              View Plans
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button style={navButtonStyle} onClick={() => router.push("/admin")}>
+              Trips
             </button>
-          </>
-        ) : (
-          <>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <div>
-                <p style={{ fontSize: "0.85rem", color: "#666", marginBottom: "0.15rem" }}>Current Plan</p>
-                <p style={{ fontSize: "1.2rem", fontWeight: "700", color: "#1a1a1a" }}>{planName || "—"}</p>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
+              Documents
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
+              Messages
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
+              Branding
+            </button>
+            <button style={{ ...navButtonStyle, backgroundColor: "#ffffff", color: "#1a56db" }} onClick={() => router.push("/admin/billing")}>
+              Billing
+            </button>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "0.5rem 1rem",
+              backgroundColor: "rgba(255,255,255,0.85)",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              color: "#b91c1c",
+            }}
+          >
+            Log Out
+          </button>
+        </div>
+
+        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
+          Billing & Subscription
+        </h1>
+
+        <div
+          style={{
+            background: "rgba(255,255,255,0.14)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            borderRadius: "12px",
+            padding: "1.5rem",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+            maxWidth: "500px",
+          }}
+        >
+          {!hasSubscription ? (
+            <>
+              <p style={{ fontSize: "0.95rem", color: "#f1f1f1", marginBottom: "1.25rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+                You don&apos;t have an active plan yet. Choose a plan to start your 7-day free trial.
+              </p>
+              <button
+                onClick={() => router.push("/pricing")}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: "#1a56db",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(26,86,219,0.5)",
+                }}
+              >
+                View Plans
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <div>
+                  <p style={{ fontSize: "0.85rem", color: "#e5e7eb", marginBottom: "0.15rem" }}>Current Plan</p>
+                  <p style={{ fontSize: "1.2rem", fontWeight: "700", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{planName || "—"}</p>
+                </div>
+                {statusInfo && (
+                  <span
+                    style={{
+                      fontSize: "0.8rem",
+                      fontWeight: "600",
+                      padding: "0.3rem 0.75rem",
+                      borderRadius: "12px",
+                      color: statusInfo.color,
+                      backgroundColor: statusInfo.bg,
+                    }}
+                  >
+                    {statusInfo.label}
+                  </span>
+                )}
               </div>
-              {statusInfo && (
-                <span
-                  style={{
-                    fontSize: "0.8rem",
-                    fontWeight: "600",
-                    padding: "0.3rem 0.75rem",
-                    borderRadius: "12px",
-                    color: statusInfo.color,
-                    backgroundColor: statusInfo.bg,
-                  }}
-                >
-                  {statusInfo.label}
-                </span>
+
+              {company?.subscriptionStatus === "trialing" && company?.trialEndsAt && (
+                <p style={{ fontSize: "0.85rem", color: "#dfe4ea", marginBottom: "1.25rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+                  Trial ends {new Date(company.trialEndsAt).toLocaleDateString()}
+                </p>
               )}
-            </div>
 
-            {company?.subscriptionStatus === "trialing" && company?.trialEndsAt && (
-              <p style={{ fontSize: "0.85rem", color: "#666", marginBottom: "1.25rem" }}>
-                Trial ends {new Date(company.trialEndsAt).toLocaleDateString()}
-              </p>
-            )}
+              {company?.currentPeriodEnd && company?.subscriptionStatus === "active" && (
+                <p style={{ fontSize: "0.85rem", color: "#dfe4ea", marginBottom: "1.25rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+                  Next billing date: {new Date(company.currentPeriodEnd).toLocaleDateString()}
+                </p>
+              )}
 
-            {company?.currentPeriodEnd && company?.subscriptionStatus === "active" && (
-              <p style={{ fontSize: "0.85rem", color: "#666", marginBottom: "1.25rem" }}>
-                Next billing date: {new Date(company.currentPeriodEnd).toLocaleDateString()}
-              </p>
-            )}
+              {error && (
+                <p style={{ color: "#ffb4b4", fontSize: "0.9rem", marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+                  {error}
+                </p>
+              )}
 
-            {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
-
-            <button
-              onClick={handleManageBilling}
-              disabled={portalLoading}
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                backgroundColor: "#1a1a1a",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                fontSize: "1rem",
-                fontWeight: "600",
-                cursor: portalLoading ? "not-allowed" : "pointer",
-              }}
-            >
-              {portalLoading ? "Opening..." : "Manage Billing / Cancel"}
-            </button>
-          </>
-        )}
+              <button
+                onClick={handleManageBilling}
+                disabled={portalLoading}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: "#1a56db",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                  cursor: portalLoading ? "not-allowed" : "pointer",
+                  boxShadow: "0 4px 14px rgba(26,86,219,0.5)",
+                }}
+              >
+                {portalLoading ? "Opening..." : "Manage Billing / Cancel"}
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
