@@ -109,55 +109,74 @@ export default function DashboardPage() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
-      {/* Top section: plain background, unchanged */}
-      <div style={{ padding: "1.5rem 1.5rem 0 1.5rem" }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
-          <button
-            onClick={() => router.push("/messages")}
-            style={{ position: "relative", padding: "0.5rem 0.75rem", backgroundColor: "#eee", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1.1rem" }}
-            aria-label="Messages"
-          >
-            💬
-            {messages.filter((m) => !m.readAt).length > 0 && (
-              <span style={{ position: "absolute", top: "-4px", right: "-4px", backgroundColor: "#d32f2f", color: "white", borderRadius: "50%", width: "18px", height: "18px", fontSize: "0.7rem", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700" }}>
-                {messages.filter((m) => !m.readAt).length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={handleLogout}
-            style={{ padding: "0.5rem 1rem", backgroundColor: "#eee", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.9rem" }}
-          >
-            Log Out
-          </button>
-        </div>
+      {/* Top section: now uses the same banner photo as the rest of the page */}
+      <div
+        style={{
+          backgroundImage: "url('/images/dashboard-bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          padding: "1.5rem 1.5rem 2rem 1.5rem",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(10,15,25,0.55) 0%, rgba(10,15,25,0.7) 100%)",
+          }}
+        />
 
-        {companyLogo && (
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.5rem" }}>
-            <img
-              src={companyLogo}
-              alt={companyName || "Company logo"}
-              style={{ maxHeight: "160px", maxWidth: "500px", width: "100%", objectFit: "contain" }}
-            />
+        <div style={{ position: "relative" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+            <button
+              onClick={() => router.push("/messages")}
+              style={{ position: "relative", padding: "0.5rem 0.75rem", backgroundColor: "rgba(255,255,255,0.85)", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1.1rem" }}
+              aria-label="Messages"
+            >
+              💬
+              {messages.filter((m) => !m.readAt).length > 0 && (
+                <span style={{ position: "absolute", top: "-4px", right: "-4px", backgroundColor: "#d32f2f", color: "white", borderRadius: "50%", width: "18px", height: "18px", fontSize: "0.7rem", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700" }}>
+                  {messages.filter((m) => !m.readAt).length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{ padding: "0.5rem 1rem", backgroundColor: "rgba(255,255,255,0.85)", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.9rem" }}
+            >
+              Log Out
+            </button>
           </div>
-        )}
 
-        {companyName && (
-          <p style={{ textAlign: "center", fontSize: "1rem", color: "#666", fontWeight: "500", marginTop: 0, marginBottom: "1rem" }}>
-            {companyName}
-          </p>
-        )}
+          {companyLogo && (
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.5rem" }}>
+              <img
+                src={companyLogo}
+                alt={companyName || "Company logo"}
+                style={{ maxHeight: "160px", maxWidth: "500px", width: "100%", objectFit: "contain" }}
+              />
+            </div>
+          )}
 
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1a1a1a", textAlign: "center", marginBottom: "2rem" }}>
-          Good day, {userData?.name || "Driver"}
-        </h1>
+          {companyName && (
+            <p style={{ textAlign: "center", fontSize: "1rem", color: "#f1f1f1", fontWeight: "500", marginTop: 0, marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+              {companyName}
+            </p>
+          )}
 
-        <Link href="/trip/new" style={{ display: "block", width: "100%", padding: "1.25rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "8px", fontSize: "1.1rem", fontWeight: "600", cursor: "pointer", marginBottom: "0", textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>
-          + Start New Trip
-        </Link>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#ffffff", textAlign: "center", marginBottom: "2rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+            Good day, {userData?.name || "Driver"}
+          </h1>
+
+          <Link href="/trip/new" style={{ display: "block", width: "100%", padding: "1.25rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "8px", fontSize: "1.1rem", fontWeight: "600", cursor: "pointer", marginBottom: "0", textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>
+            + Start New Trip
+          </Link>
+        </div>
       </div>
 
-      {/* Background image section: starts right under the button, runs to bottom of page */}
+      {/* Background image section: content continues below, same photo/overlay treatment */}
       <div
         style={{
           backgroundImage: "url('/images/dashboard-bg.jpg')",
@@ -168,7 +187,6 @@ export default function DashboardPage() {
           paddingBottom: "3rem",
           paddingLeft: "1.5rem",
           paddingRight: "1.5rem",
-          marginTop: "2rem",
           position: "relative",
         }}
       >
