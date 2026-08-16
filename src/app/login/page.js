@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 export default function LoginPage() {
   const router = useRouter();
 
-  // Branding is shown per-company after login now, not on the shared login screen.
-
+  const [loginType, setLoginType] = useState("driver"); // "driver" | "admin"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,8 +26,37 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Look up the real role in Firestore - this is what actually
+      // decides where they go, not just which tab they clicked.
+      const userDocSnap = await getDoc(doc(db, "users", user.uid));
+
+      if (!userDocSnap.exists()) {
+        setError("Account not found. Please contact your company admin.");
+        await signOut(auth);
+        setLoading(false);
+        return;
+      }
+
+      const actualRole = userDocSnap.data().role;
+
+      if (loginType === "admin" && actualRole !== "admin") {
+        setError("This account is not an admin account. Try Driver Login instead.");
+        await signOut(auth);
+        setLoading(false);
+        return;
+      }
+
+      if (loginType === "driver" && actualRole === "admin") {
+        setError("This is an admin account. Try Admin Login instead.");
+        await signOut(auth);
+        setLoading(false);
+        return;
+      }
+
+      router.push(actualRole === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
       setError("Incorrect email or password. Please try again.");
     } finally {
@@ -98,13 +127,68 @@ export default function LoginPage() {
           style={{
             fontSize: "1.6rem",
             fontWeight: "bold",
-            marginBottom: "1.5rem",
+            marginBottom: "1.25rem",
             color: "#ffffff",
             textShadow: "0 2px 8px rgba(0,0,0,0.5)",
           }}
         >
           Log in to TripSheetHQ
         </h1>
+
+        {/* Driver / Admin selector */}
+        <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            marginBottom: "1.5rem",
+            background: "rgba(255,255,255,0.15)",
+            padding: "0.3rem",
+            borderRadius: "10px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setLoginType("driver");
+              setError("");
+            }}
+            style={{
+              flex: 1,
+              padding: "0.55rem",
+              borderRadius: "8px",
+              border: "none",
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              backgroundColor: loginType === "driver" ? "#ffffff" : "transparent",
+              color: loginType === "driver" ? "#1a1a1a" : "#f1f1f1",
+              transition: "all 0.15s ease",
+            }}
+          >
+            Driver Login
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setLoginType("admin");
+              setError("");
+            }}
+            style={{
+              flex: 1,
+              padding: "0.55rem",
+              borderRadius: "8px",
+              border: "none",
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              backgroundColor: loginType === "admin" ? "#ffffff" : "transparent",
+              color: loginType === "admin" ? "#1a1a1a" : "#f1f1f1",
+              transition: "all 0.15s ease",
+            }}
+          >
+            Admin Login
+          </button>
+        </div>
 
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: "1rem" }}>
@@ -219,7 +303,7 @@ export default function LoginPage() {
               boxShadow: "0 4px 14px rgba(26,86,219,0.5)",
             }}
           >
-            {loading ? "Logging in..." : "Log In"}
+            {loading ? "Logging in..." : loginType === "admin" ? "Log In as Admin" : "Log In as Driver"}
           </button>
         </form>
 
