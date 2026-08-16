@@ -18,5 +18,33 @@ messaging.onBackgroundMessage((payload) => {
     body: body || "You have a new message.",
     icon: "/android-chrome-192x192.png",
     badge: "/favicon-32x32.png",
+    // Store where the app should navigate to when the notification is tapped.
+    // Falls back to the dashboard if the payload doesn't specify a page.
+    data: { url: payload.fyi?.click_action || payload.data?.url || "/dashboard" },
   });
+});
+
+// Without this, tapping a push notification does nothing - the notification
+// just disappears. This opens the app (or focuses it if already open) and
+// navigates to the relevant page.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const targetUrl = event.notification.data?.url || "/dashboard";
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && "focus" in client) {
+            client.navigate(targetUrl);
+            return client.focus();
+          }
+        }
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(targetUrl);
+        }
+      })
+  );
 });
