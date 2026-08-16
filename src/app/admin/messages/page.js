@@ -101,15 +101,38 @@ export default function AdminMessagesPage() {
         fileName = attachedFile.name;
       }
 
+      const trimmedText = messageText.trim();
+
       await addDoc(collection(db, "messages"), {
         driverId: selectedDriver,
         driverName: driverInfo?.name || "",
         companyId: myCompanyId,
-        text: messageText.trim(),
+        text: trimmedText,
         fileUrl: fileUrl,
         fileName: fileName,
         createdAt: new Date().toISOString(),
       });
+
+      // Fire push notification if the driver has a saved FCM token
+      try {
+        const driverDoc = await getDoc(doc(db, "users", selectedDriver));
+        const fcmToken = driverDoc.exists() ? driverDoc.data().fcmToken : null;
+
+        if (fcmToken) {
+          await fetch("/api/send-notification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              token: fcmToken,
+              title: "New message from dispatch",
+              body: trimmedText,
+            }),
+          });
+        }
+      } catch (notifyErr) {
+        console.error("Push notification failed:", notifyErr);
+        // don't block the message flow on a notification failure
+      }
 
       setMessage(`Message sent to ${driverInfo?.name || "driver"}.`);
       setMessageText("");

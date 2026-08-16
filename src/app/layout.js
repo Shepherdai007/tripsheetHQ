@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import SWRegister from "./sw-register";
 import InstallPrompt from "./install-prompt";
 import IosInstallPrompt from "./ios-install-prompt";
+import NotificationPrompt from "./notification-prompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,6 +51,7 @@ export default function RootLayout({ children }) {
         <Footer />
         <InstallPrompt />
         <IosInstallPrompt />
+        <NotificationPrompt />
       </body>
     </html>
   );
