@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db } from "@/lib/firebase";
@@ -52,6 +52,11 @@ export default function AdminDocumentsPage() {
     return () => unsubscribe();
   }, [router]);
 
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push("/login");
+  };
+
   const handleUpload = async (e) => {
     e.preventDefault();
     setError("");
@@ -93,6 +98,17 @@ export default function AdminDocumentsPage() {
 
   const inputStyle = { width: "100%", padding: "0.6rem", border: "1px solid #ccc", borderRadius: "4px", fontSize: "1rem", boxSizing: "border-box" };
   const labelStyle = { display: "block", marginBottom: "0.25rem", fontSize: "0.9rem", color: "#333", fontWeight: "500" };
+  const navButtonStyle = {
+    padding: "0.5rem 1rem",
+    backgroundColor: "#ffffff",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontSize: "0.85rem",
+    fontWeight: "600",
+    color: "#1a1a1a",
+    whiteSpace: "nowrap",
+  };
 
   if (loading || !authorized) {
     return (
@@ -104,6 +120,48 @@ export default function AdminDocumentsPage() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
+      {/* Top nav bar: section links + logout */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "0.5rem",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <button style={navButtonStyle} onClick={() => router.push("/admin")}>
+            Trips
+          </button>
+          <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
+            Documents
+          </button>
+          <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
+            Messages
+          </button>
+          <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
+            Branding
+          </button>
+        </div>
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#ffffff",
+            border: "1px solid #ddd",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "0.85rem",
+            fontWeight: "600",
+            color: "#b91c1c",
+          }}
+        >
+          Log Out
+        </button>
+      </div>
+
       <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#1a1a1a" }}>
         Send ACI/ACE Document to Driver
       </h1>

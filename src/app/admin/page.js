@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
@@ -43,6 +43,11 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [router]);
 
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push("/login");
+  };
+
   if (loading || !authorized) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -63,6 +68,18 @@ export default function AdminPage() {
     borderRadius: "12px",
     padding: "1rem 1.5rem",
     boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+  };
+
+  const navButtonStyle = {
+    padding: "0.5rem 1rem",
+    backgroundColor: "rgba(255,255,255,0.85)",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontSize: "0.85rem",
+    fontWeight: "600",
+    color: "#1a1a1a",
+    whiteSpace: "nowrap",
   };
 
   return (
@@ -88,6 +105,48 @@ export default function AdminPage() {
       />
 
       <div style={{ position: "relative" }}>
+        {/* Top nav bar: section links + logout */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button style={navButtonStyle} onClick={() => router.push("/admin")}>
+              Trips
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
+              Documents
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
+              Messages
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
+              Branding
+            </button>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "0.5rem 1rem",
+              backgroundColor: "rgba(255,255,255,0.85)",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              color: "#b91c1c",
+            }}
+          >
+            Log Out
+          </button>
+        </div>
+
         <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
           Admin — All Trips
         </h1>
