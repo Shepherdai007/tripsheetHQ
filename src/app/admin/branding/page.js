@@ -88,8 +88,22 @@ export default function BrandingPage() {
     }
   };
 
-  const inputStyle = { width: "100%", padding: "0.6rem", border: "1px solid #ccc", borderRadius: "4px", fontSize: "1rem", boxSizing: "border-box" };
-  const labelStyle = { display: "block", marginBottom: "0.25rem", fontSize: "0.9rem", color: "#333", fontWeight: "500" };
+  const inputStyle = {
+    width: "100%",
+    padding: "0.6rem",
+    border: "1px solid rgba(255,255,255,0.3)",
+    borderRadius: "4px",
+    fontSize: "1rem",
+    boxSizing: "border-box",
+    backgroundColor: "rgba(255,255,255,0.9)",
+  };
+  const labelStyle = {
+    display: "block",
+    marginBottom: "0.25rem",
+    fontSize: "0.9rem",
+    color: "#f0f0f0",
+    fontWeight: "500",
+  };
 
   if (loading || !authorized) {
     return (
@@ -100,51 +114,100 @@ export default function BrandingPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#1a1a1a" }}>
-        Company Branding
-      </h1>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/images/branding-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        position: "relative",
+      }}
+    >
+      {/* Dark overlay so text stays readable */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(0,0,0,0.45)",
+        }}
+      />
 
-      <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", maxWidth: "500px" }}>
-        <form onSubmit={handleSave}>
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={labelStyle}>Company Name</label>
-            <input
-              type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              style={inputStyle}
-            />
-          </div>
+      {/* Floating content */}
+      <div style={{ position: "relative", zIndex: 1, padding: "1.5rem" }}>
+        <h1
+          style={{
+            fontSize: "1.75rem",
+            fontWeight: "bold",
+            marginBottom: "1.5rem",
+            color: "#ffffff",
+            textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+          }}
+        >
+          Company Branding
+        </h1>
 
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={labelStyle}>Company Logo</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleLogoChange(e.target.files[0])}
-              className="file-upload-btn"
-            />
-            {(logoPreview || logoUrl) && (
-              <img
-                src={logoPreview || logoUrl}
-                alt="Logo preview"
-                style={{ marginTop: "0.75rem", maxWidth: "200px", maxHeight: "100px", borderRadius: "4px", border: "1px solid #ccc" }}
+        <div
+          style={{
+            backgroundColor: "rgba(20,20,20,0.55)",
+            backdropFilter: "blur(6px)",
+            borderRadius: "8px",
+            padding: "1.5rem",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            maxWidth: "500px",
+            border: "1px solid rgba(255,255,255,0.15)",
+          }}
+        >
+          <form onSubmit={handleSave}>
+            <div style={{ marginBottom: "1rem" }}>
+              <label style={labelStyle}>Company Name</label>
+              <input
+                type="text"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                style={inputStyle}
               />
-            )}
-          </div>
+            </div>
 
-          {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
-          {message && <p style={{ color: "#1a7d36", fontSize: "0.9rem", marginBottom: "1rem" }}>{message}</p>}
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label style={labelStyle}>Company Logo</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleLogoChange(e.target.files[0])}
+                className="file-upload-btn"
+              />
+              {(logoPreview || logoUrl) && (
+                <img
+                  src={logoPreview || logoUrl}
+                  alt="Logo preview"
+                  style={{ marginTop: "0.75rem", maxWidth: "200px", maxHeight: "100px", borderRadius: "4px", border: "1px solid #ccc" }}
+                />
+              )}
+            </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "4px", fontSize: "1rem", fontWeight: "600", cursor: "pointer" }}
-          >
-            {saving ? "Saving..." : "Save Branding"}
-          </button>
-        </form>
+            {error && <p style={{ color: "#ff6b6b", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
+            {message && <p style={{ color: "#4ade80", fontSize: "0.9rem", marginBottom: "1rem" }}>{message}</p>}
+
+            <button
+              type="submit"
+              disabled={saving}
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                backgroundColor: "#1a56db",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                fontSize: "1rem",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              {saving ? "Saving..." : "Save Branding"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
