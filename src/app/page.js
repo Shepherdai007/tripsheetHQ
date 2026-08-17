@@ -7,6 +7,7 @@ const oswald = Oswald({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://tripsheethq.com"),
   title: "TripsheetHQ — Trip Sheets, ACE/ACI Documents & Dispatch Messaging",
   description:
     "TripsheetHQ replaces paper trip logs and scattered texts with one dashboard. Digital trip sheets, ACE/ACI document delivery, and instant dispatch messaging for trucking fleets.",
@@ -370,32 +371,6 @@ export default function Home() {
           </a>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer
-        style={{
-          padding: "2rem 1.5rem",
-          maxWidth: "1200px",
-          margin: "0 auto",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1rem",
-        }}
-      >
-        <span style={{ color: "#64748b", fontSize: "0.85rem" }}>
-          © {new Date().getFullYear()} TripsheetHQ.com
-        </span>
-        <div style={{ display: "flex", gap: "1.25rem" }}>
-          <a href="/privacy" style={{ color: "#94a3b8", fontSize: "0.85rem", textDecoration: "none" }}>
-            Privacy
-          </a>
-          <a href="/terms" style={{ color: "#94a3b8", fontSize: "0.85rem", textDecoration: "none" }}>
-            Terms
-          </a>
-        </div>
-      </footer>
     </div>
   );
 }
