@@ -24,10 +24,22 @@ export async function POST(request) {
         const companyId = session.metadata?.companyId;
 
         if (companyId) {
+          // Fetch the subscription right away so we have the plan price ID
+          // and trial end date immediately, instead of waiting for a
+          // separate customer.subscription.updated event to arrive.
+          const subscription = await stripe.subscriptions.retrieve(session.subscription);
+
           await adminDb.collection("companies").doc(companyId).update({
             stripeCustomerId: session.customer,
             stripeSubscriptionId: session.subscription,
-            subscriptionStatus: "trialing",
+            subscriptionStatus: subscription.status,
+            planPriceId: subscription.items?.data?.[0]?.price?.id || null,
+            trialEndsAt: subscription.trial_end
+              ? new Date(subscription.trial_end * 1000).toISOString()
+              : null,
+            currentPeriodEnd: subscription.current_period_end
+              ? new Date(subscription.current_period_end * 1000).toISOString()
+              : null,
             updatedAt: new Date().toISOString(),
           });
         }
