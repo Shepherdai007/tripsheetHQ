@@ -85,7 +85,7 @@ export default function Home() {
           TRIPSHEET<span style={{ color: "#f5c400" }}>HQ</span>
         </span>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-          
+          <a
             href="/login"
             style={{
               color: "#cbd5e1",
@@ -96,7 +96,7 @@ export default function Home() {
           >
             Log in
           </a>
-          
+          <a
             href="/signup"
             style={{
               backgroundColor: "#1a56db",
@@ -181,7 +181,7 @@ export default function Home() {
               dashboard your drivers and dispatchers actually use.
             </p>
             <div style={{ display: "flex", gap: "0.85rem", flexWrap: "wrap" }}>
-              
+              <a
                 href="/signup"
                 style={{
                   backgroundColor: "#1a56db",
@@ -195,7 +195,7 @@ export default function Home() {
               >
                 Start free
               </a>
-              
+              <a
                 href="/login"
                 style={{
                   backgroundColor: "rgba(255,255,255,0.08)",
@@ -352,7 +352,7 @@ export default function Home() {
           >
             Get your fleet off paper today.
           </h2>
-          
+          <a
             href="/signup"
             style={{
               display: "inline-block",
