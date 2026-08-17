@@ -4,22 +4,31 @@ import { getMessaging } from "firebase-admin/messaging";
 
 function getFormattedPrivateKey() {
   const key = process.env.FIREBASE_PRIVATE_KEY || "";
-  // If the key contains literal backslash-n sequences, convert them to real newlines.
-  // If it already has real newlines, this does nothing and passes through unchanged.
   return key.includes("\\n") ? key.replace(/\\n/g, "\n") : key;
 }
 
+let initError = null;
+
 if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: getFormattedPrivateKey(),
-    }),
-  });
+  try {
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: getFormattedPrivateKey(),
+      }),
+    });
+  } catch (err) {
+    initError = err.message;
+    console.error("Firebase Admin init failed:", err.message);
+  }
 }
 
 export async function POST(req) {
+  if (initError) {
+    return NextResponse.json({ error: "Firebase Admin not initialized: " + initError }, { status: 500 });
+  }
+
   try {
     const { token, title, body } = await req.json();
 
