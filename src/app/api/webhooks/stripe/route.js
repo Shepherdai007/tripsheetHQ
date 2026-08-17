@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { adminDb } from "@/lib/firebase-admin";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -25,7 +24,7 @@ export async function POST(request) {
         const companyId = session.metadata?.companyId;
 
         if (companyId) {
-          await updateDoc(doc(db, "companies", companyId), {
+          await adminDb.collection("companies").doc(companyId).update({
             stripeCustomerId: session.customer,
             stripeSubscriptionId: session.subscription,
             subscriptionStatus: "trialing",
@@ -40,7 +39,7 @@ export async function POST(request) {
         const companyId = subscription.metadata?.companyId;
 
         if (companyId) {
-          await updateDoc(doc(db, "companies", companyId), {
+          await adminDb.collection("companies").doc(companyId).update({
             subscriptionStatus: subscription.status, // trialing, active, past_due, canceled, etc.
             trialEndsAt: subscription.trial_end
               ? new Date(subscription.trial_end * 1000).toISOString()
@@ -60,7 +59,7 @@ export async function POST(request) {
         const companyId = subscription.metadata?.companyId;
 
         if (companyId) {
-          await updateDoc(doc(db, "companies", companyId), {
+          await adminDb.collection("companies").doc(companyId).update({
             subscriptionStatus: "canceled",
             updatedAt: new Date().toISOString(),
           });
