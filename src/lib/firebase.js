@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getMessaging, isSupported } from "firebase/messaging";
 
@@ -17,6 +17,14 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Explicitly persist login across full app closes (important for PWAs,
+// where storage behavior can otherwise be inconsistent between sessions).
+if (typeof window !== "undefined") {
+  setPersistence(auth, browserLocalPersistence).catch(() => {
+    // If this fails (e.g. private browsing), auth falls back to default behavior.
+  });
+}
 
 export const getMessagingInstance = async () => {
   if (typeof window === "undefined") return null;
