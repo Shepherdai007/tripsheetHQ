@@ -309,7 +309,10 @@ export default function LoginPage() {
 
         <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "#f1f1f1", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
           Don&apos;t have an account?{" "}
-          <Link href="/signup" style={{ color: "#bfdbfe", fontWeight: "600", textDecoration: "none" }}>
+          <Link
+            href={loginType === "admin" ? "/signup/company" : "/signup"}
+            style={{ color: "#bfdbfe", fontWeight: "600", textDecoration: "none" }}
+          >
             Sign up
           </Link>
         </p>

@@ -76,25 +76,69 @@ export default function CompanySignupPage() {
     }
   };
 
-  const inputStyle = { width: "100%", padding: "0.6rem", border: "1px solid #ccc", borderRadius: "4px", fontSize: "1rem", boxSizing: "border-box" };
-  const labelStyle = { display: "block", marginBottom: "0.25rem", fontSize: "0.9rem", color: "#333" };
+  const inputStyle = {
+    width: "100%",
+    padding: "0.6rem",
+    border: "1px solid rgba(255,255,255,0.4)",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    boxSizing: "border-box",
+    background: "rgba(255,255,255,0.9)",
+    color: "#1a1a1a",
+  };
+  const labelStyle = { display: "block", marginBottom: "0.25rem", fontSize: "0.9rem", color: "#f1f1f1" };
 
   // Success screen: shown right after the company + admin account are created
   if (createdCode) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
-        <div style={{ backgroundColor: "white", padding: "2rem", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)", width: "100%", maxWidth: "420px", textAlign: "center" }}>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundImage: "url('/images/signup-bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+          padding: "1.5rem",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(10,15,25,0.45) 0%, rgba(10,15,25,0.65) 100%)",
+          }}
+        />
+        <div
+          style={{
+            position: "relative",
+            background: "rgba(255,255,255,0.14)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            padding: "2.25rem",
+            borderRadius: "16px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+            width: "100%",
+            maxWidth: "420px",
+            textAlign: "center",
+          }}
+        >
           <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>✅</div>
-          <h1 style={{ fontSize: "1.4rem", fontWeight: "bold", marginBottom: "0.5rem", color: "#1a1a1a" }}>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: "bold", marginBottom: "0.5rem", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
             {companyName} is ready!
           </h1>
-          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "1.5rem" }}>
+          <p style={{ fontSize: "0.9rem", color: "#f1f1f1", marginBottom: "1.5rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
             Share this invite code with your drivers so they can join. You can find it again anytime in your admin panel.
           </p>
 
           <div
             style={{
-              backgroundColor: "#f0f5ff",
+              backgroundColor: "rgba(255,255,255,0.9)",
               border: "2px dashed #1a56db",
               borderRadius: "8px",
               padding: "1.25rem",
@@ -114,7 +158,7 @@ export default function CompanySignupPage() {
             style={{
               width: "100%",
               padding: "0.65rem",
-              backgroundColor: copied ? "#e6f4ea" : "#f0f0f0",
+              backgroundColor: copied ? "#e6f4ea" : "rgba(255,255,255,0.9)",
               color: copied ? "#1a7d36" : "#333",
               border: "none",
               borderRadius: "6px",
@@ -135,10 +179,11 @@ export default function CompanySignupPage() {
               backgroundColor: "#1a56db",
               color: "white",
               border: "none",
-              borderRadius: "4px",
+              borderRadius: "8px",
               fontSize: "1rem",
               fontWeight: "600",
               cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(26,86,219,0.5)",
             }}
           >
             Continue to Admin Panel
@@ -149,13 +194,47 @@ export default function CompanySignupPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f5" }}>
-      <div style={{ backgroundColor: "white", padding: "2rem", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)", width: "100%", maxWidth: "420px" }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "0.35rem", color: "#1a1a1a" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundImage: "url('/images/signup-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+        padding: "1.5rem",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(10,15,25,0.45) 0%, rgba(10,15,25,0.65) 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "relative",
+          background: "rgba(255,255,255,0.14)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+          border: "1px solid rgba(255,255,255,0.25)",
+          padding: "2.25rem",
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+          width: "100%",
+          maxWidth: "420px",
+        }}
+      >
+        <h1 style={{ fontSize: "1.6rem", fontWeight: "bold", marginBottom: "0.35rem", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
           Set up your company
         </h1>
-        <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "1.5rem" }}>
-          You'll get a unique invite code to share with your drivers.
+        <p style={{ fontSize: "0.9rem", color: "#f1f1f1", marginBottom: "1.5rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+          You&apos;ll get a unique invite code to share with your drivers.
         </p>
 
         <form onSubmit={handleSignup}>
@@ -179,12 +258,23 @@ export default function CompanySignupPage() {
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} style={inputStyle} />
           </div>
 
-          {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
+          {error && <p style={{ color: "#ffb4b4", fontSize: "0.9rem", marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "4px", fontSize: "1rem", fontWeight: "600", cursor: "pointer" }}
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              backgroundColor: "#1a56db",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "1rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(26,86,219,0.5)",
+            }}
           >
             {loading ? "Setting up..." : "Create Company"}
           </button>
