@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import InstallPrompt from "./install-prompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,26 +14,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://tripsheethq.com"),
   title: "TripSheetHQ — Trip Sheets, ACE/ACI Documents & Dispatch Messaging",
   description: "TripSheetHQ replaces paper trip logs and scattered texts with one dashboard your drivers and dispatchers actually use.",
-  icons: {
-    icon: [
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-  },
-  manifest: "/site.webmanifest",
 };
 
-// Organization schema (JSON-LD) - tells Google "this is our official
-// name, logo, and site" so it has a better chance of showing our logo
-// next to search results and in the Knowledge Panel. Not a guarantee,
-// but the standard first step.
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -61,6 +46,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col">
         <div style={{ flex: 1 }}>{children}</div>
         <Footer />
+        <InstallPrompt />
       </body>
     </html>
   );
