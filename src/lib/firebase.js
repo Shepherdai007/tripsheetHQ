@@ -10,19 +10,19 @@ const firebaseConfig = {
   storageBucket: "tripsheethq.firebasestorage.app",
   messagingSenderId: "470095071606",
   appId: "1:470095071606:web:c76fc911e0cba7c628d257",
-  measurementId: "G-0QY50KR12F"
+  measurementId: "G-0QY50KR12F",
 };
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Explicitly persist login across full app closes (important for PWAs,
-// where storage behavior can otherwise be inconsistent between sessions).
+// Explicitly persist login across closing the browser/app - stores the
+// session in IndexedDB so re-opening (including as an installed PWA)
+// keeps the driver/admin logged in instead of asking them to log in again.
 if (typeof window !== "undefined") {
-  setPersistence(auth, browserLocalPersistence).catch(() => {
-    // If this fails (e.g. private browsing), auth falls back to default behavior.
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    console.error("Failed to set auth persistence:", err);
   });
 }
 
