@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { initializeAuth, getAuth, indexedDBLocalPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getMessaging, isSupported } from "firebase/messaging";
 
@@ -14,17 +14,25 @@ const firebaseConfig = {
 };
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
 
-// Explicitly persist login across closing the browser/app - stores the
-// session in IndexedDB so re-opening (including as an installed PWA)
-// keeps the driver/admin logged in instead of asking them to log in again.
-if (typeof window !== "undefined") {
-  setPersistence(auth, browserLocalPersistence).catch((err) => {
-    console.error("Failed to set auth persistence:", err);
+// Using initializeAuth with persistence set at creation (not
+// getAuth() + setPersistence() afterward) - this avoids a known race
+// condition where the session restore can lose the current user right
+// at startup, especially in installed PWAs. Falls back to getAuth()
+// if the app was already initialized elsewhere (e.g. hot reload).
+let auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: [indexedDBLocalPersistence, browserLocalPersistence],
   });
+} catch (err) {
+  // initializeAuth throws if already called once for this app (e.g. Next.js
+  // hot reload in dev) - just grab the existing instance instead.
+  auth = getAuth(app);
 }
+
+export { auth };
+export const db = getFirestore(app);
 
 export const getMessagingInstance = async () => {
   if (typeof window === "undefined") return null;
