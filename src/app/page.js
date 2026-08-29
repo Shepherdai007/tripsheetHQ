@@ -1,4 +1,5 @@
 import { Oswald } from "next/font/google";
+import AuthRedirect from "@/components/AuthRedirect";
 
 const oswald = Oswald({
   subsets: ["latin"],
@@ -63,6 +64,9 @@ const features = [
 export default function Home() {
   return (
     <div className={oswald.variable} style={{ backgroundColor: "#0b1220" }}>
+      {/* Silently redirects already-logged-in users to their dashboard/admin panel */}
+      <AuthRedirect />
+
       {/* Nav */}
       <nav
         style={{
