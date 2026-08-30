@@ -18,6 +18,20 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "TripSheetHQ — Trip Sheets, ACE/ACI Documents & Dispatch Messaging",
   description: "TripSheetHQ replaces paper trip logs and scattered texts with one dashboard your drivers and dispatchers actually use.",
+  // This was missing entirely - without it, Chrome has no way to know
+  // the site is installable, so the native install prompt never fires.
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+};
+
+export const viewport = {
+  themeColor: "#0b1220",
 };
 
 const organizationSchema = {
