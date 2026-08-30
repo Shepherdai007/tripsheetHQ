@@ -7,9 +7,9 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 const PLAN_NAMES = {
-  price_1U596A3OTOyp0aV0oRZRiBgT: "Starter",
-  price_1U599V3OTOyp0aV0GXNxlFj2: "Growth",
-  price_1U59An3OTOyp0aV0JGOhtGXU: "Fleet",
+  price_1UAEx83OTOyp0aV0xhhzqPp5: "Starter",
+  price_1UAEyl3OTOyp0aV0XMm8JTyR: "Growth",
+  price_1UAEzL3OTOyp0aV0PxyHYBcx: "Fleet",
 };
 
 const STATUS_LABELS = {

@@ -14,7 +14,7 @@ const PLANS = [
     period: "CAD / month",
     description: "Up to 3 drivers",
     features: ["Up to 3 drivers", "Trip logging & fuel tracking", "Receipt uploads", "Basic support"],
-    priceId: "price_1U596A3OTOyp0aV0oRZRiBgT",
+    priceId: "price_1UAEx83OTOyp0aV0xhhzqPp5",
   },
   {
     id: "growth",
@@ -23,7 +23,7 @@ const PLANS = [
     period: "CAD / month",
     description: "Up to 10 drivers",
     features: ["Up to 10 drivers", "Everything in Starter", "ACI/ACE document upload", "Dispatch messaging", "Priority support"],
-    priceId: "price_1U599V3OTOyp0aV0GXNxlFj2",
+    priceId: "price_1UAEyl3OTOyp0aV0XMm8JTyR",
     highlighted: true,
   },
   {
@@ -33,7 +33,7 @@ const PLANS = [
     period: "CAD / month",
     description: "Unlimited drivers",
     features: ["Unlimited drivers", "Everything in Growth", "Custom branding", "Priority support"],
-    priceId: "price_1U59An3OTOyp0aV0JGOhtGXU",
+    priceId: "price_1UAEzL3OTOyp0aV0PxyHYBcx",
   },
 ];
 
