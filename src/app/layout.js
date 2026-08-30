@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import InstallPrompt from "./install-prompt";
+import SWRegister from "./sw-register";
+import NotificationPrompt from "./notification-prompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,9 +46,16 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-full flex flex-col">
+        {/* Registers the service worker - required for the native
+            install prompt to reliably fire */}
+        <SWRegister />
+
         <div style={{ flex: 1 }}>{children}</div>
         <Footer />
+
+        {/* Install + notification prompts, site-wide */}
         <InstallPrompt />
+        <NotificationPrompt />
       </body>
     </html>
   );
