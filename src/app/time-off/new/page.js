@@ -87,18 +87,52 @@ export default function TimeOffRequestPage() {
 
   if (success) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
-        <div style={{ backgroundColor: "white", padding: "2rem", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)", maxWidth: "420px", textAlign: "center" }}>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundImage: "url('/images/billing-bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+          padding: "1.5rem",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(10,15,25,0.55) 0%, rgba(10,15,25,0.75) 100%)",
+          }}
+        />
+        <div
+          style={{
+            position: "relative",
+            background: "rgba(255,255,255,0.14)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            padding: "2rem",
+            borderRadius: "16px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+            maxWidth: "420px",
+            textAlign: "center",
+          }}
+        >
           <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>✅</div>
-          <h1 style={{ fontSize: "1.3rem", fontWeight: "bold", marginBottom: "0.5rem", color: "#1a1a1a" }}>
+          <h1 style={{ fontSize: "1.3rem", fontWeight: "bold", marginBottom: "0.5rem", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
             Request submitted
           </h1>
-          <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "1.5rem" }}>
+          <p style={{ fontSize: "0.9rem", color: "#f1f1f1", marginBottom: "1.5rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
             Your dispatcher will review your time off request. Remember: vacation requests need to be submitted at least 30 days in advance, and caregiver leave requires documentation from your doctor.
           </p>
           <button
             onClick={() => router.push("/dashboard")}
-            style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "6px", fontSize: "1rem", fontWeight: "600", cursor: "pointer" }}
+            style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "6px", fontSize: "1rem", fontWeight: "600", cursor: "pointer", boxShadow: "0 4px 14px rgba(26,86,219,0.5)" }}
           >
             Back to Dashboard
           </button>
@@ -108,23 +142,52 @@ export default function TimeOffRequestPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
-      <div style={{ maxWidth: "500px", margin: "0 auto" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/images/billing-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+        padding: "1.5rem",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(10,15,25,0.55) 0%, rgba(10,15,25,0.75) 100%)",
+        }}
+      />
+
+      <div style={{ position: "relative", maxWidth: "500px", margin: "0 auto" }}>
         <button
           onClick={() => router.push("/dashboard")}
-          style={{ background: "none", border: "none", color: "#1a56db", fontSize: "0.9rem", fontWeight: "600", cursor: "pointer", marginBottom: "1rem", padding: 0 }}
+          style={{ background: "none", border: "none", color: "#bfdbfe", fontSize: "0.9rem", fontWeight: "600", cursor: "pointer", marginBottom: "1rem", padding: 0 }}
         >
           ← Back
         </button>
 
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "0.35rem", color: "#1a1a1a" }}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "0.35rem", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
           Days Off Request
         </h1>
-        <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "1.5rem" }}>
+        <p style={{ fontSize: "0.9rem", color: "#f1f1f1", marginBottom: "1.5rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
           Submit your request below. Your dispatcher will approve or deny it.
         </p>
 
-        <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+        <div
+          style={{
+            background: "rgba(255,255,255,0.14)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            borderRadius: "16px",
+            padding: "1.5rem",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+          }}
+        >
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: "1.25rem" }}>
               <label style={labelStyle}>Reason for Leave</label>
