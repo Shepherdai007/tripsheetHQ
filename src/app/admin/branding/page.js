@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db } from "@/lib/firebase";
@@ -50,6 +50,11 @@ export default function BrandingPage() {
 
     return () => unsubscribe();
   }, [router]);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push("/login");
+  };
 
   const handleLogoChange = (file) => {
     if (!file) return;
@@ -104,6 +109,17 @@ export default function BrandingPage() {
     color: "#f0f0f0",
     fontWeight: "500",
   };
+  const navButtonStyle = {
+    padding: "0.5rem 1rem",
+    backgroundColor: "rgba(255,255,255,0.85)",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontSize: "0.85rem",
+    fontWeight: "600",
+    color: "#1a1a1a",
+    whiteSpace: "nowrap",
+  };
 
   if (loading || !authorized) {
     return (
@@ -135,6 +151,54 @@ export default function BrandingPage() {
 
       {/* Floating content */}
       <div style={{ position: "relative", zIndex: 1, padding: "1.5rem" }}>
+        {/* Top nav bar: section links + logout - was missing entirely before */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button style={navButtonStyle} onClick={() => router.push("/admin")}>
+              Trips
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
+              Documents
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
+              Messages
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/time-off")}>
+              Time Off
+            </button>
+            <button style={{ ...navButtonStyle, color: "#1a56db" }} onClick={() => router.push("/admin/branding")}>
+              Branding
+            </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/billing")}>
+              Billing
+            </button>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "0.5rem 1rem",
+              backgroundColor: "rgba(255,255,255,0.85)",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              color: "#b91c1c",
+            }}
+          >
+            Log Out
+          </button>
+        </div>
+
         <h1
           style={{
             fontSize: "1.75rem",

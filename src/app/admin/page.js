@@ -126,6 +126,9 @@ export default function AdminPage() {
             <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
               Messages
             </button>
+            <button style={navButtonStyle} onClick={() => router.push("/admin/time-off")}>
+              Time Off
+            </button>
             <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
               Branding
             </button>

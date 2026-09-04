@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [trips, setTrips] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [timeOffRequests, setTimeOffRequests] = useState([]);
   const [companyLogo, setCompanyLogo] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -78,6 +79,19 @@ export default function DashboardPage() {
         setMessages(msgList);
       } catch (err) {
         console.error("Error loading messages:", err);
+      }
+
+      try {
+        const timeOffQuery = query(
+          collection(db, "timeOffRequests"),
+          where("driverId", "==", user.uid),
+          orderBy("submittedAt", "desc")
+        );
+        const timeOffSnap = await getDocs(timeOffQuery);
+        const timeOffList = timeOffSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setTimeOffRequests(timeOffList);
+      } catch (err) {
+        console.error("Error loading time off requests:", err);
       }
 
       setLoading(false);
@@ -170,8 +184,12 @@ export default function DashboardPage() {
             Good day, {userData?.name || "Driver"}
           </h1>
 
-          <Link href="/trip/new" style={{ display: "block", width: "100%", padding: "1.25rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "8px", fontSize: "1.1rem", fontWeight: "600", cursor: "pointer", marginBottom: "0", textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>
+          <Link href="/trip/new" style={{ display: "block", width: "100%", padding: "1.25rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "8px", fontSize: "1.1rem", fontWeight: "600", cursor: "pointer", marginBottom: "0.75rem", textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>
             + Start New Trip
+          </Link>
+
+          <Link href="/time-off/new" style={{ display: "block", width: "100%", padding: "0.85rem", backgroundColor: "rgba(255,255,255,0.9)", color: "#1a1a1a", border: "none", borderRadius: "8px", fontSize: "0.95rem", fontWeight: "600", cursor: "pointer", textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>
+            📅 Request Time Off
           </Link>
         </div>
       </div>
@@ -285,6 +303,48 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+
+          {timeOffRequests.length > 0 && (
+            <div
+              style={{
+                background: "rgba(255,255,255,0.14)",
+                backdropFilter: "blur(18px)",
+                WebkitBackdropFilter: "blur(18px)",
+                border: "1px solid rgba(255,255,255,0.25)",
+                borderRadius: "12px",
+                padding: "1.5rem",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+                marginTop: "2rem",
+              }}
+            >
+              <h2 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "1rem", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+                My Time Off Requests
+              </h2>
+              {timeOffRequests.map((req) => {
+                const statusColors = {
+                  pending: { bg: "rgba(254,243,224,0.9)", color: "#b26a00" },
+                  approved: { bg: "rgba(230,244,234,0.9)", color: "#1a7d36" },
+                  denied: { bg: "rgba(254,226,226,0.9)", color: "#b91c1c" },
+                };
+                const s = statusColors[req.status] || statusColors.pending;
+                return (
+                  <div
+                    key={req.id}
+                    style={{ padding: "0.85rem 0", borderBottom: "1px solid rgba(255,255,255,0.25)" }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "0.9rem", color: "#ffffff", fontWeight: "600", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+                        {req.datesRequested} → {req.datesReturned}
+                      </span>
+                      <span style={{ fontSize: "0.75rem", padding: "0.2rem 0.6rem", borderRadius: "12px", textTransform: "capitalize", fontWeight: "600", backgroundColor: s.bg, color: s.color }}>
+                        {req.status}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
