@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, collection, query, where, getDocs, addDoc, orderBy } from "firebase/firestore";
@@ -18,6 +18,7 @@ export default function AdminMessagesPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [sentMessages, setSentMessages] = useState([]);
+  const messageFormRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -56,6 +57,11 @@ export default function AdminMessagesPage() {
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/login");
+  };
+
+  const handleReplyClick = (driverId) => {
+    setSelectedDriver(driverId);
+    messageFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const loadSentMessages = async (companyIdParam) => {
@@ -224,6 +230,7 @@ export default function AdminMessagesPage() {
         </h1>
 
         <div
+          ref={messageFormRef}
           style={{
             background: "rgba(255,255,255,0.14)",
             backdropFilter: "blur(18px)",
@@ -298,9 +305,12 @@ export default function AdminMessagesPage() {
                       {msg.driverName} {isReply && <span style={{ fontWeight: "400", color: "#9dc6ff" }}>replied</span>}
                     </p>
                     {isReply ? (
-                      <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: "#dbeafe", color: "#1a56db", fontWeight: "600" }}>
+                      <button
+                        onClick={() => handleReplyClick(msg.driverId)}
+                        style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: "#dbeafe", color: "#1a56db", fontWeight: "600", border: "none", cursor: "pointer" }}
+                      >
                         Reply
-                      </span>
+                      </button>
                     ) : (
                       <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: msg.readAt ? "#e6f4ea" : "#fef3e0", color: msg.readAt ? "#1a7d36" : "#b26a00", fontWeight: "600" }}>
                         {msg.readAt ? "Read" : "Delivered"}
