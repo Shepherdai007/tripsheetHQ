@@ -96,8 +96,8 @@ export default function AdminTimeOffPage() {
 
   const navButtonStyle = {
     padding: "0.5rem 1rem",
-    backgroundColor: "#ffffff",
-    border: "1px solid #ddd",
+    backgroundColor: "rgba(255,255,255,0.85)",
+    border: "none",
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "0.85rem",
@@ -121,7 +121,27 @@ export default function AdminTimeOffPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f5f5f5", padding: "1.5rem" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/images/billing-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+        padding: "1.5rem",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(10,15,25,0.55) 0%, rgba(10,15,25,0.7) 100%)",
+        }}
+      />
+
+      <div style={{ position: "relative" }}>
       {/* Top nav bar: section links + logout */}
       <div
         style={{
@@ -143,7 +163,7 @@ export default function AdminTimeOffPage() {
           <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
             Messages
           </button>
-          <button style={{ ...navButtonStyle, borderColor: "#1a56db", color: "#1a56db" }} onClick={() => router.push("/admin/time-off")}>
+          <button style={{ ...navButtonStyle, color: "#1a56db" }} onClick={() => router.push("/admin/time-off")}>
             Time Off
           </button>
           <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
@@ -157,8 +177,8 @@ export default function AdminTimeOffPage() {
           onClick={handleLogout}
           style={{
             padding: "0.5rem 1rem",
-            backgroundColor: "#ffffff",
-            border: "1px solid #ddd",
+            backgroundColor: "rgba(255,255,255,0.85)",
+            border: "none",
             borderRadius: "6px",
             cursor: "pointer",
             fontSize: "0.85rem",
@@ -170,13 +190,23 @@ export default function AdminTimeOffPage() {
         </button>
       </div>
 
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#1a1a1a" }}>
+      <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
         Time Off Requests
       </h1>
 
       {requests.length === 0 ? (
-        <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-          <p style={{ color: "#666" }}>No time off requests yet.</p>
+        <div
+          style={{
+            background: "rgba(255,255,255,0.14)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            borderRadius: "12px",
+            padding: "1.5rem",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+          }}
+        >
+          <p style={{ color: "#f1f1f1" }}>No time off requests yet.</p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -293,6 +323,7 @@ export default function AdminTimeOffPage() {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }
