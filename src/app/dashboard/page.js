@@ -150,9 +150,9 @@ export default function DashboardPage() {
               aria-label="Messages"
             >
               💬
-              {messages.filter((m) => !m.readAt).length > 0 && (
+              {messages.filter((m) => !m.readAt && m.senderRole !== "driver").length > 0 && (
                 <span style={{ position: "absolute", top: "-4px", right: "-4px", backgroundColor: "#d32f2f", color: "white", borderRadius: "50%", width: "18px", height: "18px", fontSize: "0.7rem", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700" }}>
-                  {messages.filter((m) => !m.readAt).length}
+                  {messages.filter((m) => !m.readAt && m.senderRole !== "driver").length}
                 </span>
               )}
             </button>
