@@ -43,6 +43,11 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return;
 
+  // Only handle real http(s) requests - browser extensions and other
+  // schemes (chrome-extension://, etc.) can't be cached and were
+  // throwing harmless but noisy console errors.
+  if (!request.url.startsWith("http")) return;
+
   // Navigation requests (actual page loads): try the network first,
   // fall back to cache, and finally to the offline page if nothing
   // else is available.
