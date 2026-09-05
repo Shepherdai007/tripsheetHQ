@@ -94,7 +94,27 @@ export default function AdminMessagesPage() {
         companyId: myCompanyId,
         text: messageText.trim(),
         createdAt: new Date().toISOString(),
+        senderRole: "admin",
       });
+
+      // Push a notification to the driver's device if they've enabled them.
+      // This is best-effort - if it fails (no token, device unreachable, etc.)
+      // the message itself has already been saved, so we don't block on it.
+      if (driverInfo?.fcmToken) {
+        try {
+          await fetch("/api/send-notification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              token: driverInfo.fcmToken,
+              title: "New message",
+              body: messageText.trim(),
+            }),
+          });
+        } catch (notifyErr) {
+          console.error("Push notification failed:", notifyErr);
+        }
+      }
 
       setMessage(`Message sent to ${driverInfo?.name || "driver"}.`);
       setMessageText("");
@@ -269,17 +289,28 @@ export default function AdminMessagesPage() {
           {sentMessages.length === 0 ? (
             <p style={{ color: "#f1f1f1", fontSize: "0.9rem" }}>No messages sent yet.</p>
           ) : (
-            sentMessages.map((msg) => (
-              <div key={msg.id} style={{ padding: "0.75rem 0", borderBottom: "1px solid rgba(255,255,255,0.25)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <p style={{ fontSize: "0.85rem", fontWeight: "600", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{msg.driverName}</p>
-                  <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: msg.readAt ? "#e6f4ea" : "#fef3e0", color: msg.readAt ? "#1a7d36" : "#b26a00", fontWeight: "600" }}>
-                    {msg.readAt ? "Read" : "Delivered"}
-                  </span>
+            sentMessages.map((msg) => {
+              const isReply = msg.senderRole === "driver";
+              return (
+                <div key={msg.id} style={{ padding: "0.75rem 0", borderBottom: "1px solid rgba(255,255,255,0.25)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <p style={{ fontSize: "0.85rem", fontWeight: "600", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+                      {msg.driverName} {isReply && <span style={{ fontWeight: "400", color: "#9dc6ff" }}>replied</span>}
+                    </p>
+                    {isReply ? (
+                      <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: "#dbeafe", color: "#1a56db", fontWeight: "600" }}>
+                        Reply
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: msg.readAt ? "#e6f4ea" : "#fef3e0", color: msg.readAt ? "#1a7d36" : "#b26a00", fontWeight: "600" }}>
+                        {msg.readAt ? "Read" : "Delivered"}
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ fontSize: "0.9rem", color: "#f1f1f1", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{msg.text}</p>
                 </div>
-                <p style={{ fontSize: "0.9rem", color: "#f1f1f1", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{msg.text}</p>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
