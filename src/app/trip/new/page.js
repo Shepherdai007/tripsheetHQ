@@ -565,7 +565,14 @@ export default function NewTripPage() {
         New Trip Sheet
       </h1>
 
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && e.target.tagName !== "TEXTAREA" && e.target.type !== "submit") {
+            e.preventDefault();
+          }
+        }}
+      >
         <div style={sectionStyle}>
           <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Trip Info</h2>
           <div style={rowStyle}>
