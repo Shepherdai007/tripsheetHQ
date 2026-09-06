@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, updateDoc, collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import MessagesNavLink from "@/components/MessagesNavLink";
 
 const LEAVE_LABELS = {
   sick: "Sick Days",
@@ -160,9 +161,7 @@ export default function AdminTimeOffPage() {
           <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
             Documents
           </button>
-          <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
-            Messages
-          </button>
+          <MessagesNavLink router={router} active={false} />
           <button style={{ ...navButtonStyle, color: "#1a56db" }} onClick={() => router.push("/admin/time-off")}>
             Time Off
           </button>

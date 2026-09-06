@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import MessagesNavLink from "@/components/MessagesNavLink";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -123,9 +124,7 @@ export default function AdminPage() {
             <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
               Documents
             </button>
-            <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
-              Messages
-            </button>
+            <MessagesNavLink router={router} active={false} />
             <button style={navButtonStyle} onClick={() => router.push("/admin/time-off")}>
               Time Off
             </button>

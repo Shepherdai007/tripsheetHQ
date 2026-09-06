@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db } from "@/lib/firebase";
+import MessagesNavLink from "@/components/MessagesNavLink";
 
 export default function BrandingPage() {
   const router = useRouter();
@@ -151,7 +152,7 @@ export default function BrandingPage() {
 
       {/* Floating content */}
       <div style={{ position: "relative", zIndex: 1, padding: "1.5rem" }}>
-        {/* Top nav bar: section links + logout - was missing entirely before */}
+        {/* Top nav bar: section links + logout */}
         <div
           style={{
             display: "flex",
@@ -169,9 +170,7 @@ export default function BrandingPage() {
             <button style={navButtonStyle} onClick={() => router.push("/admin/documents")}>
               Documents
             </button>
-            <button style={navButtonStyle} onClick={() => router.push("/admin/messages")}>
-              Messages
-            </button>
+            <MessagesNavLink router={router} active={false} />
             <button style={navButtonStyle} onClick={() => router.push("/admin/time-off")}>
               Time Off
             </button>
