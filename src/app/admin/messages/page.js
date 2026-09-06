@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, collection, query, where, getDocs, addDoc, orderBy, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, addDoc, orderBy, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 export default function AdminMessagesPage() {
@@ -18,6 +18,8 @@ export default function AdminMessagesPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [sentMessages, setSentMessages] = useState([]);
+  const composerRef = useRef(null);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -74,24 +76,27 @@ export default function AdminMessagesPage() {
     }
   };
 
-  const handleClearConversation = async () => {
-    if (!selectedDriver) {
-      setError("Select a driver first.");
-      return;
-    }
-    const driverInfo = drivers.find((d) => d.id === selectedDriver);
-    const confirmed = window.confirm(
-      `Delete the entire message history with ${driverInfo?.name || "this driver"}? This can't be undone.`
-    );
-    if (!confirmed) return;
+  // Clicking "New" on a driver's reply jumps you to the composer with
+  // that driver preselected, and marks their unread replies as seen -
+  // the red flag stays up until you actually act on it, not just on
+  // page view, so it doesn't disappear before you notice it.
+  const handleReplyClick = async (driverId) => {
+    setSelectedDriver(driverId);
+    composerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    textareaRef.current?.focus();
 
+    const unseen = sentMessages.filter(
+      (m) => m.driverId === driverId && m.senderRole === "driver" && !m.adminReadAt
+    );
+    if (unseen.length === 0) return;
+    const now = new Date().toISOString();
+    setSentMessages((prev) =>
+      prev.map((m) => (unseen.find((u) => u.id === m.id) ? { ...m, adminReadAt: now } : m))
+    );
     try {
-      const toDelete = sentMessages.filter((m) => m.driverId === selectedDriver);
-      await Promise.all(toDelete.map((m) => deleteDoc(doc(db, "messages", m.id))));
-      await loadSentMessages();
-      setMessage("Conversation cleared.");
+      await Promise.all(unseen.map((m) => updateDoc(doc(db, "messages", m.id), { adminReadAt: now })));
     } catch (err) {
-      setError(err.message);
+      console.error("Error marking messages read:", err);
     }
   };
 
@@ -245,6 +250,7 @@ export default function AdminMessagesPage() {
         </h1>
 
         <div
+          ref={composerRef}
           style={{
             background: "rgba(255,255,255,0.14)",
             backdropFilter: "blur(18px)",
@@ -270,29 +276,10 @@ export default function AdminMessagesPage() {
               </select>
             </div>
 
-            {selectedDriver && (
-              <button
-                type="button"
-                onClick={handleClearConversation}
-                style={{
-                  background: "none",
-                  border: "1px solid rgba(255,107,107,0.6)",
-                  color: "#ff6b6b",
-                  fontSize: "0.8rem",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  padding: "0.35rem 0.7rem",
-                  borderRadius: "6px",
-                  marginBottom: "1rem",
-                }}
-              >
-                Clear Conversation
-              </button>
-            )}
-
             <div style={{ marginBottom: "1.5rem" }}>
               <label style={labelStyle}>Message</label>
               <textarea
+                ref={textareaRef}
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 rows={4}
@@ -326,27 +313,57 @@ export default function AdminMessagesPage() {
             maxWidth: "500px",
           }}
         >
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>Recent Messages</h2>
+          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            Recent Messages
+            {sentMessages.some((m) => m.senderRole === "driver" && !m.adminReadAt) && (
+              <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#ef4444", display: "inline-block" }} />
+            )}
+          </h2>
           {sentMessages.length === 0 ? (
             <p style={{ color: "#f1f1f1", fontSize: "0.9rem" }}>No messages sent yet.</p>
           ) : (
             sentMessages.map((msg) => {
               const fromDriver = msg.senderRole === "driver";
+              const unread = fromDriver && !msg.adminReadAt;
               return (
-              <div key={msg.id} style={{ padding: "0.75rem 0", borderBottom: "1px solid rgba(255,255,255,0.25)" }}>
+              <div
+                key={msg.id}
+                style={{
+                  padding: "0.75rem 0.75rem",
+                  marginBottom: "0.25rem",
+                  borderBottom: "1px solid rgba(255,255,255,0.25)",
+                  borderLeft: unread ? "4px solid #ef4444" : "4px solid transparent",
+                  backgroundColor: unread ? "rgba(239,68,68,0.12)" : "transparent",
+                  borderRadius: "6px",
+                }}
+              >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <p style={{ fontSize: "0.85rem", fontWeight: "600", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{msg.driverName}</p>
                   {fromDriver ? (
-                    <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: "#dbeafe", color: "#1a56db", fontWeight: "600" }}>
-                      Reply
-                    </span>
+                    <button
+                      onClick={() => handleReplyClick(msg.driverId)}
+                      style={{
+                        fontSize: "0.75rem",
+                        padding: "0.15rem 0.6rem",
+                        borderRadius: "10px",
+                        border: "none",
+                        cursor: "pointer",
+                        backgroundColor: unread ? "#ef4444" : "#dbeafe",
+                        color: unread ? "#ffffff" : "#1a56db",
+                        fontWeight: "700",
+                      }}
+                    >
+                      {unread ? "New — Reply" : "Reply"}
+                    </button>
                   ) : (
                     <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: msg.readAt ? "#e6f4ea" : "#fef3e0", color: msg.readAt ? "#1a7d36" : "#b26a00", fontWeight: "600" }}>
                       {msg.readAt ? "Read" : "Delivered"}
                     </span>
                   )}
                 </div>
-                <p style={{ fontSize: "0.9rem", color: "#f1f1f1", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{msg.text}</p>
+                <p style={{ fontSize: "0.9rem", color: "#f1f1f1", textShadow: "0 1px 4px rgba(0,0,0,0.5)", fontWeight: unread ? "600" : "400" }}>
+                  {msg.text}
+                </p>
               </div>
               );
             })
