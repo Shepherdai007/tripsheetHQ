@@ -10,11 +10,11 @@ export default function MessagesPage() {
   const router = useRouter();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [companyId, setCompanyId] = useState(null);
-  const [driverName, setDriverName] = useState("");
+  const [myName, setMyName] = useState("");
+  const [myCompanyId, setMyCompanyId] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
-  const [sendError, setSendError] = useState("");
+  const [error, setError] = useState("");
 
   const loadMessages = async (userId) => {
     const msgQuery = query(collection(db, "messages"), where("driverId", "==", userId));
@@ -24,11 +24,10 @@ export default function MessagesPage() {
       .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     setMessages(msgList);
 
-    // Only auto-mark admin-sent messages as read on open. Docs written before
-    // senderRole existed have no senderRole field, so treat missing senderRole
-    // as "admin" for backwards compatibility. Never mark the driver's own
-    // replies as read here.
-    const unread = msgList.filter((m) => !m.readAt && m.senderRole !== "driver");
+    // Only mark messages from dispatch as read - a driver's own sent
+    // replies don't need a "readAt" (that field tracks whether the
+    // driver has seen dispatch's message, not the other way around).
+    const unread = msgList.filter((m) => m.senderRole !== "driver" && !m.readAt);
     for (const msg of unread) {
       await updateDoc(doc(db, "messages", msg.id), { readAt: new Date().toISOString() });
     }
@@ -45,13 +44,11 @@ export default function MessagesPage() {
         router.push("/login");
         return;
       }
-
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
-        setCompanyId(userDoc.data().companyId || null);
-        setDriverName(userDoc.data().name || "");
+        setMyName(userDoc.data().name || "");
+        setMyCompanyId(userDoc.data().companyId || null);
       }
-
       await loadMessages(user.uid);
       setLoading(false);
     });
@@ -65,31 +62,75 @@ export default function MessagesPage() {
     setMessages(messages.filter((m) => m.id !== msgId));
   };
 
-  const handleSendReply = async (e) => {
+  const handleClearHistory = async () => {
+    const confirmed = window.confirm("Delete your entire message history with dispatch? This can't be undone.");
+    if (!confirmed || !auth.currentUser) return;
+
+    try {
+      await Promise.all(messages.map((msg) => deleteDoc(doc(db, "messages", msg.id))));
+      setMessages([]);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const notifyAdmins = async (companyIdValue, text) => {
+    try {
+      const adminsQuery = query(
+        collection(db, "users"),
+        where("role", "==", "admin"),
+        where("companyId", "==", companyIdValue)
+      );
+      const adminsSnap = await getDocs(adminsQuery);
+      const admins = adminsSnap.docs.map((d) => d.data());
+
+      await Promise.all(
+        admins
+          .filter((a) => a.fcmToken)
+          .map((a) =>
+            fetch("/api/send-notification", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                token: a.fcmToken,
+                title: `Message from ${myName || "driver"}`,
+                body: text,
+              }),
+            }).catch((err) => console.error("Push notification failed:", err))
+          )
+      );
+    } catch (err) {
+      console.error("Error notifying admins:", err);
+    }
+  };
+
+  const handleReplySend = async (e) => {
     e.preventDefault();
-    setSendError("");
+    setError("");
 
-    const text = replyText.trim();
-    if (!text) return;
-
-    const user = auth.currentUser;
-    if (!user) return;
+    if (!replyText.trim() || !auth.currentUser) return;
 
     setSending(true);
     try {
-      const newMsgData = {
-        driverId: user.uid,
-        driverName,
-        companyId,
+      const text = replyText.trim();
+
+      await addDoc(collection(db, "messages"), {
+        driverId: auth.currentUser.uid,
+        driverName: myName,
+        companyId: myCompanyId,
         text,
-        createdAt: new Date().toISOString(),
         senderRole: "driver",
-      };
-      const docRef = await addDoc(collection(db, "messages"), newMsgData);
-      setMessages((prev) => [...prev, { id: docRef.id, ...newMsgData }]);
+        createdAt: new Date().toISOString(),
+      });
+
       setReplyText("");
+      await loadMessages(auth.currentUser.uid);
+
+      if (myCompanyId) {
+        await notifyAdmins(myCompanyId, text);
+      }
     } catch (err) {
-      setSendError(err.message);
+      setError(err.message);
     } finally {
       setSending(false);
     }
@@ -129,7 +170,7 @@ export default function MessagesPage() {
         }}
       />
 
-      <div style={{ position: "relative", zIndex: 1, padding: "1.5rem", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "1.5rem" }}>
         <button
           onClick={() => router.push("/dashboard")}
           style={{
@@ -159,123 +200,145 @@ export default function MessagesPage() {
           Messages
         </h1>
 
-        <div style={{ flex: 1, overflowY: "auto", marginBottom: "1rem" }}>
-          {messages.length === 0 ? (
-            <div
-              style={{
-                backgroundColor: "rgba(20,20,20,0.55)",
-                backdropFilter: "blur(6px)",
-                borderRadius: "8px",
-                padding: "1.5rem",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                border: "1px solid rgba(255,255,255,0.15)",
-              }}
-            >
-              <p style={{ color: "#ddd" }}>No messages yet.</p>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {messages.map((msg) => {
-                const isMine = msg.senderRole === "driver";
-                return (
-                  <div
-                    key={msg.id}
+        {messages.length > 0 && (
+          <button
+            onClick={handleClearHistory}
+            style={{
+              background: "none",
+              border: "1px solid rgba(255,107,107,0.6)",
+              color: "#ff6b6b",
+              fontSize: "0.8rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              padding: "0.35rem 0.7rem",
+              borderRadius: "6px",
+              marginBottom: "1rem",
+            }}
+          >
+            Clear History
+          </button>
+        )}
+
+        {messages.length === 0 ? (
+          <div
+            style={{
+              backgroundColor: "rgba(20,20,20,0.55)",
+              backdropFilter: "blur(6px)",
+              borderRadius: "8px",
+              padding: "1.5rem",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}
+          >
+            <p style={{ color: "#ddd" }}>No messages yet.</p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
+            {messages.map((msg) => {
+              const fromDriver = msg.senderRole === "driver";
+              return (
+              <div
+                key={msg.id}
+                style={{
+                  backgroundColor: fromDriver ? "rgba(37,99,235,0.35)" : "rgba(20,20,20,0.55)",
+                  backdropFilter: "blur(6px)",
+                  borderRadius: "8px",
+                  padding: "1rem 1.25rem",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderLeft: fromDriver || msg.readAt ? "4px solid transparent" : "4px solid #60a5fa",
+                  marginLeft: fromDriver ? "1.5rem" : 0,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
+                  <span style={{ fontSize: "0.8rem", color: "#ccc" }}>
+                    {fromDriver ? "You" : "Dispatch"} · {formatDateTime(msg.createdAt)}
+                  </span>
+                  <button
+                    onClick={() => handleDelete(msg.id)}
+                    style={{ background: "none", border: "none", color: "#ff6b6b", fontSize: "0.8rem", fontWeight: "600", cursor: "pointer", padding: 0 }}
+                  >
+                    Delete
+                  </button>
+                </div>
+                <p style={{ fontSize: "0.95rem", color: "#ffffff", fontWeight: !fromDriver && !msg.readAt ? "600" : "400" }}>
+                  {msg.text}
+                </p>
+                {msg.fileUrl && (
+                  <a
+                    href={msg.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     style={{
-                      alignSelf: isMine ? "flex-end" : "flex-start",
-                      maxWidth: "85%",
-                      backgroundColor: isMine ? "rgba(26,86,219,0.55)" : "rgba(20,20,20,0.55)",
-                      backdropFilter: "blur(6px)",
-                      borderRadius: "8px",
-                      padding: "1rem 1.25rem",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      borderLeft: !isMine ? (msg.readAt ? "4px solid transparent" : "4px solid #60a5fa") : "none",
+                      display: "inline-block",
+                      marginTop: "0.6rem",
+                      fontSize: "0.85rem",
+                      color: "#93c5fd",
+                      fontWeight: "600",
+                      textDecoration: "underline",
                     }}
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem", gap: "1rem" }}>
-                      <span style={{ fontSize: "0.8rem", color: "#ccc" }}>
-                        {isMine ? "You" : "Dispatch"} · {formatDateTime(msg.createdAt)}
-                      </span>
-                      <button
-                        onClick={() => handleDelete(msg.id)}
-                        style={{ background: "none", border: "none", color: "#ff6b6b", fontSize: "0.8rem", fontWeight: "600", cursor: "pointer", padding: 0 }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                    <p style={{ fontSize: "0.95rem", color: "#ffffff", fontWeight: !isMine && !msg.readAt ? "600" : "400" }}>
-                      {msg.text}
-                    </p>
-                    {msg.fileUrl && (
-                      <a
-                        href={msg.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "inline-block",
-                          marginTop: "0.6rem",
-                          fontSize: "0.85rem",
-                          color: "#93c5fd",
-                          fontWeight: "600",
-                          textDecoration: "underline",
-                        }}
-                      >
-                        📎 {msg.fileName || "View attachment"}
-                      </a>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                    📎 {msg.fileName || "View attachment"}
+                  </a>
+                )}
+              </div>
+              );
+            })}
+          </div>
+        )}
 
         <form
-          onSubmit={handleSendReply}
+          onSubmit={handleReplySend}
           style={{
-            display: "flex",
-            gap: "0.5rem",
             backgroundColor: "rgba(20,20,20,0.55)",
             backdropFilter: "blur(6px)",
             borderRadius: "8px",
-            padding: "0.75rem",
+            padding: "1rem 1.25rem",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
             border: "1px solid rgba(255,255,255,0.15)",
           }}
         >
-          <input
-            type="text"
+          <label style={{ display: "block", marginBottom: "0.4rem", fontSize: "0.85rem", color: "#ddd" }}>
+            Reply to dispatch
+          </label>
+          <textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Type a reply..."
+            rows={3}
+            placeholder="Type a message..."
             style={{
-              flex: 1,
-              padding: "0.6rem 0.75rem",
-              borderRadius: "6px",
+              width: "100%",
+              padding: "0.6rem",
               border: "1px solid rgba(255,255,255,0.3)",
-              background: "rgba(255,255,255,0.9)",
-              color: "#1a1a1a",
+              borderRadius: "8px",
               fontSize: "0.95rem",
+              boxSizing: "border-box",
+              background: "rgba(255,255,255,0.92)",
+              color: "#1a1a1a",
+              marginBottom: "0.75rem",
+              resize: "vertical",
             }}
           />
+          {error && <p style={{ color: "#ff9b9b", fontSize: "0.85rem", marginBottom: "0.75rem" }}>{error}</p>}
           <button
             type="submit"
             disabled={sending || !replyText.trim()}
             style={{
-              padding: "0.6rem 1.25rem",
-              backgroundColor: "#1a56db",
+              width: "100%",
+              padding: "0.7rem",
+              backgroundColor: "#2563eb",
               color: "white",
               border: "none",
               borderRadius: "6px",
               fontSize: "0.95rem",
               fontWeight: "600",
-              cursor: sending || !replyText.trim() ? "default" : "pointer",
-              opacity: sending || !replyText.trim() ? 0.6 : 1,
+              cursor: sending ? "default" : "pointer",
+              opacity: sending || !replyText.trim() ? 0.7 : 1,
             }}
           >
-            {sending ? "..." : "Send"}
+            {sending ? "Sending..." : "Send"}
           </button>
         </form>
-        {sendError && <p style={{ color: "#ffb4b4", fontSize: "0.85rem", marginTop: "0.5rem" }}>{sendError}</p>}
       </div>
     </div>
   );

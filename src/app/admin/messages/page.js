@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, collection, query, where, getDocs, addDoc, orderBy } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, addDoc, orderBy, deleteDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 export default function AdminMessagesPage() {
@@ -18,7 +18,6 @@ export default function AdminMessagesPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [sentMessages, setSentMessages] = useState([]);
-  const messageFormRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -59,11 +58,6 @@ export default function AdminMessagesPage() {
     router.push("/login");
   };
 
-  const handleReplyClick = (driverId) => {
-    setSelectedDriver(driverId);
-    messageFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   const loadSentMessages = async (companyIdParam) => {
     try {
       const cId = companyIdParam || myCompanyId;
@@ -77,6 +71,27 @@ export default function AdminMessagesPage() {
       setSentMessages(msgList);
     } catch (err) {
       console.error("Error loading messages:", err);
+    }
+  };
+
+  const handleClearConversation = async () => {
+    if (!selectedDriver) {
+      setError("Select a driver first.");
+      return;
+    }
+    const driverInfo = drivers.find((d) => d.id === selectedDriver);
+    const confirmed = window.confirm(
+      `Delete the entire message history with ${driverInfo?.name || "this driver"}? This can't be undone.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const toDelete = sentMessages.filter((m) => m.driverId === selectedDriver);
+      await Promise.all(toDelete.map((m) => deleteDoc(doc(db, "messages", m.id))));
+      await loadSentMessages();
+      setMessage("Conversation cleared.");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -99,8 +114,8 @@ export default function AdminMessagesPage() {
         driverName: driverInfo?.name || "",
         companyId: myCompanyId,
         text: messageText.trim(),
-        createdAt: new Date().toISOString(),
         senderRole: "admin",
+        createdAt: new Date().toISOString(),
       });
 
       // Push a notification to the driver's device if they've enabled them.
@@ -230,7 +245,6 @@ export default function AdminMessagesPage() {
         </h1>
 
         <div
-          ref={messageFormRef}
           style={{
             background: "rgba(255,255,255,0.14)",
             backdropFilter: "blur(18px)",
@@ -255,6 +269,26 @@ export default function AdminMessagesPage() {
                 ))}
               </select>
             </div>
+
+            {selectedDriver && (
+              <button
+                type="button"
+                onClick={handleClearConversation}
+                style={{
+                  background: "none",
+                  border: "1px solid rgba(255,107,107,0.6)",
+                  color: "#ff6b6b",
+                  fontSize: "0.8rem",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  padding: "0.35rem 0.7rem",
+                  borderRadius: "6px",
+                  marginBottom: "1rem",
+                }}
+              >
+                Clear Conversation
+              </button>
+            )}
 
             <div style={{ marginBottom: "1.5rem" }}>
               <label style={labelStyle}>Message</label>
@@ -297,28 +331,23 @@ export default function AdminMessagesPage() {
             <p style={{ color: "#f1f1f1", fontSize: "0.9rem" }}>No messages sent yet.</p>
           ) : (
             sentMessages.map((msg) => {
-              const isReply = msg.senderRole === "driver";
+              const fromDriver = msg.senderRole === "driver";
               return (
-                <div key={msg.id} style={{ padding: "0.75rem 0", borderBottom: "1px solid rgba(255,255,255,0.25)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <p style={{ fontSize: "0.85rem", fontWeight: "600", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-                      {msg.driverName} {isReply && <span style={{ fontWeight: "400", color: "#9dc6ff" }}>replied</span>}
-                    </p>
-                    {isReply ? (
-                      <button
-                        onClick={() => handleReplyClick(msg.driverId)}
-                        style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: "#dbeafe", color: "#1a56db", fontWeight: "600", border: "none", cursor: "pointer" }}
-                      >
-                        Reply
-                      </button>
-                    ) : (
-                      <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: msg.readAt ? "#e6f4ea" : "#fef3e0", color: msg.readAt ? "#1a7d36" : "#b26a00", fontWeight: "600" }}>
-                        {msg.readAt ? "Read" : "Delivered"}
-                      </span>
-                    )}
-                  </div>
-                  <p style={{ fontSize: "0.9rem", color: "#f1f1f1", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{msg.text}</p>
+              <div key={msg.id} style={{ padding: "0.75rem 0", borderBottom: "1px solid rgba(255,255,255,0.25)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <p style={{ fontSize: "0.85rem", fontWeight: "600", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{msg.driverName}</p>
+                  {fromDriver ? (
+                    <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: "#dbeafe", color: "#1a56db", fontWeight: "600" }}>
+                      Reply
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: "0.75rem", padding: "0.15rem 0.5rem", borderRadius: "10px", backgroundColor: msg.readAt ? "#e6f4ea" : "#fef3e0", color: msg.readAt ? "#1a7d36" : "#b26a00", fontWeight: "600" }}>
+                      {msg.readAt ? "Read" : "Delivered"}
+                    </span>
+                  )}
                 </div>
+                <p style={{ fontSize: "0.9rem", color: "#f1f1f1", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{msg.text}</p>
+              </div>
               );
             })
           )}
