@@ -25,7 +25,8 @@ service cloud.firestore {
     match /documents/{docId} {
       allow create: if isAdmin();
       allow read: if request.auth != null && (resource.data.driverId == request.auth.uid || (isAdmin() && resource.data.companyId == myCompanyId()));
-      allow update, delete: if isAdmin() && resource.data.companyId == myCompanyId();
+      allow update: if isAdmin() && resource.data.companyId == myCompanyId();
+      allow delete: if (isAdmin() && resource.data.companyId == myCompanyId()) || (request.auth != null && resource.data.driverId == request.auth.uid);
     }
     match /messages/{messageId} {
       allow create: if (isAdmin() &&

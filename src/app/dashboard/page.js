@@ -125,6 +125,18 @@ export default function DashboardPage() {
     }
   };
 
+  const handleClearDocuments = async () => {
+    const confirmed = window.confirm("Delete your entire document history from dispatch? This can't be undone.");
+    if (!confirmed) return;
+
+    try {
+      await Promise.all(documents.map((docItem) => deleteDoc(doc(db, "documents", docItem.id))));
+      setDocuments([]);
+    } catch (err) {
+      console.error("Error clearing documents:", err);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -243,9 +255,26 @@ export default function DashboardPage() {
                 marginBottom: "2rem",
               }}
             >
-              <h2 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "1rem", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-                Documents from Dispatch
-              </h2>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)", margin: 0 }}>
+                  Documents from Dispatch
+                </h2>
+                <button
+                  onClick={handleClearDocuments}
+                  style={{
+                    background: "none",
+                    border: "1px solid rgba(255,107,107,0.6)",
+                    color: "#ff6b6b",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    padding: "0.35rem 0.7rem",
+                    borderRadius: "6px",
+                  }}
+                >
+                  Clear History
+                </button>
+              </div>
               {documents.map((docItem) => (
                 <div key={docItem.id} style={{ padding: "0.75rem 0", borderBottom: "1px solid rgba(255,255,255,0.25)" }}>
                   <a
