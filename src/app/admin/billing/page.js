@@ -257,6 +257,27 @@ export default function AdminBillingPage() {
                 </p>
               )}
 
+              {company?.subscriptionStatus === "canceled" && (
+                <button
+                  onClick={() => router.push("/pricing")}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    backgroundColor: "#1a7d36",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontSize: "1rem",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 14px rgba(26,125,54,0.5)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Resubscribe
+                </button>
+              )}
+
               <button
                 onClick={handleManageBilling}
                 disabled={portalLoading}
@@ -273,7 +294,11 @@ export default function AdminBillingPage() {
                   boxShadow: "0 4px 14px rgba(26,86,219,0.5)",
                 }}
               >
-                {portalLoading ? "Opening..." : "Manage Billing / Cancel"}
+                {portalLoading
+                  ? "Opening..."
+                  : company?.subscriptionStatus === "canceled"
+                  ? "View Billing History"
+                  : "Manage Billing / Cancel"}
               </button>
             </>
           )}
