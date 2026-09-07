@@ -64,11 +64,12 @@ export default function BillingGate({ children }) {
     return (
       <div
         style={{
-          backgroundColor: "rgba(239,68,68,0.1)",
+          backgroundColor: "rgba(255,245,245,0.98)",
           border: "1px solid rgba(239,68,68,0.4)",
           borderRadius: "10px",
           padding: "1.25rem",
           textAlign: "center",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
         }}
       >
         <p style={{ fontWeight: "700", color: "#b91c1c", marginBottom: "0.4rem" }}>
