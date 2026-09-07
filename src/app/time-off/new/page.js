@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import BillingGate from "@/components/BillingGate";
 
 const LEAVE_TYPES = [
   { key: "sick", label: "Sick Days" },
@@ -185,54 +186,56 @@ export default function TimeOffRequestPage() {
             boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
           }}
         >
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: "1.25rem" }}>
-              <label style={labelStyle}>Reason for Leave</label>
-              <select value={leaveType} onChange={(e) => setLeaveType(e.target.value)} style={inputStyle}>
-                {LEAVE_TYPES.map((t) => (
-                  <option key={t.key} value={t.key}>{t.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
-              <div>
-                <label style={labelStyle}>Date Requested</label>
-                <input type="date" value={datesRequested} onChange={(e) => setDatesRequested(e.target.value)} required style={inputStyle} />
+          <BillingGate>
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: "1.25rem" }}>
+                <label style={labelStyle}>Reason for Leave</label>
+                <select value={leaveType} onChange={(e) => setLeaveType(e.target.value)} style={inputStyle}>
+                  {LEAVE_TYPES.map((t) => (
+                    <option key={t.key} value={t.key}>{t.label}</option>
+                  ))}
+                </select>
               </div>
-              <div>
-                <label style={labelStyle}>Date Returning</label>
-                <input type="date" value={datesReturned} onChange={(e) => setDatesReturned(e.target.value)} required style={inputStyle} />
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.25rem" }}>
+                <div>
+                  <label style={labelStyle}>Date Requested</label>
+                  <input type="date" value={datesRequested} onChange={(e) => setDatesRequested(e.target.value)} required style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Date Returning</label>
+                  <input type="date" value={datesReturned} onChange={(e) => setDatesReturned(e.target.value)} required style={inputStyle} />
+                </div>
               </div>
-            </div>
 
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label style={labelStyle}>Notes (optional)</label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-                style={inputStyle}
-                placeholder="Any additional details for your dispatcher"
-              />
-            </div>
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label style={labelStyle}>Notes (optional)</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  style={inputStyle}
+                  placeholder="Any additional details for your dispatcher"
+                />
+              </div>
 
-            <div style={{ backgroundColor: "#f0f5ff", border: "1px solid #dbeafe", borderRadius: "6px", padding: "0.85rem", marginBottom: "1.5rem" }}>
-              <p style={{ fontSize: "0.8rem", color: "#1a3a8f", margin: 0, lineHeight: "1.5" }}>
-                Vacation requests need at least 30 days notice. Caregiver leave requires doctor documentation. Submit Dr. appointments as soon as they're booked.
-              </p>
-            </div>
+              <div style={{ backgroundColor: "#f0f5ff", border: "1px solid #dbeafe", borderRadius: "6px", padding: "0.85rem", marginBottom: "1.5rem" }}>
+                <p style={{ fontSize: "0.8rem", color: "#1a3a8f", margin: 0, lineHeight: "1.5" }}>
+                  Vacation requests need at least 30 days notice. Caregiver leave requires doctor documentation. Submit Dr. appointments as soon as they're booked.
+                </p>
+              </div>
 
-            {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
+              {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "6px", fontSize: "1rem", fontWeight: "600", cursor: submitting ? "not-allowed" : "pointer" }}
-            >
-              {submitting ? "Submitting..." : "Submit Request"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={submitting}
+                style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "6px", fontSize: "1rem", fontWeight: "600", cursor: submitting ? "not-allowed" : "pointer" }}
+              >
+                {submitting ? "Submitting..." : "Submit Request"}
+              </button>
+            </form>
+          </BillingGate>
         </div>
       </div>
     </div>

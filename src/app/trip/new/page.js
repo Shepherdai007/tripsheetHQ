@@ -8,6 +8,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { enhanceImage } from "@/lib/imageEnhance";
 import CropTool from "@/components/CropTool";
 import { auth, db } from "@/lib/firebase";
+import BillingGate from "@/components/BillingGate";
 
 export default function NewTripPage() {
   const router = useRouter();
@@ -565,495 +566,497 @@ export default function NewTripPage() {
         New Trip Sheet
       </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && e.target.tagName !== "TEXTAREA" && e.target.type !== "submit") {
-            e.preventDefault();
-          }
-        }}
-      >
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Trip Info</h2>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Date</label>
-            <input type="date" value={form.date} onChange={handleChange("date")} required style={inputStyle} />
-          </div>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Trailer #</label>
-            <input type="text" value={form.trailerNumber} onChange={handleChange("trailerNumber")} style={inputStyle} />
-          </div>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Pro #</label>
-            <input type="text" value={form.proNumber} onChange={handleChange("proNumber")} style={inputStyle} />
-          </div>
-          <div style={rowStyle}>
-            <label style={labelStyle}>B/L #</label>
-            <input type="text" value={form.blNumber} onChange={handleChange("blNumber")} style={inputStyle} />
-          </div>
-        </div>
-
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Pickup</h2>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Customer</label>
-            <input type="text" value={form.pickupCustomer} onChange={handleChange("pickupCustomer")} style={inputStyle} />
-          </div>
-          <div style={rowStyle}>
-            <label style={labelStyle}>City, State/Prov</label>
-            <input type="text" value={form.pickupCity} onChange={handleChange("pickupCity")} style={inputStyle} />
-          </div>
-        </div>
-
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Delivery</h2>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Customer</label>
-            <input type="text" value={form.deliveryCustomer} onChange={handleChange("deliveryCustomer")} style={inputStyle} />
-          </div>
-          <div style={rowStyle}>
-            <label style={labelStyle}>City, State/Prov</label>
-            <input type="text" value={form.deliveryCity} onChange={handleChange("deliveryCity")} style={inputStyle} />
-          </div>
-        </div>
-
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Mileage</h2>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Starting Odometer</label>
-            <input type="number" value={form.startOdometer} onChange={handleChange("startOdometer")} style={inputStyle} />
-          </div>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Ending Odometer</label>
-            <input type="number" value={form.endOdometer} onChange={handleChange("endOdometer")} style={inputStyle} />
-          </div>
-          {totalMiles && (
-            <p style={{ fontSize: "0.95rem", color: "#1a56db", fontWeight: "600" }}>
-              Total Miles: {totalMiles}
-            </p>
-          )}
-        </div>
-
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Shift Time</h2>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Shift Start</label>
-            <input
-              type="time"
-              value={form.shiftStart}
-              onChange={handleChange("shiftStart")}
-              style={inputStyle}
-            />
-          </div>
-          <div style={rowStyle}>
-            <label style={labelStyle}>Shift End</label>
-            <input
-              type="time"
-              value={form.shiftEnd}
-              onChange={handleChange("shiftEnd")}
-              style={inputStyle}
-            />
-          </div>
-          {totalShiftHours && (
-            <p style={{ fontSize: "0.95rem", color: "#1a56db", fontWeight: "600" }}>
-              Total Hours Worked: {totalShiftHours}
-            </p>
-          )}
-        </div>
-
-        <div style={sectionStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1a1a1a" }}>Border Crossings</h2>
-            <button
-              type="button"
-              onClick={addBorderCrossing}
-              style={{ padding: "0.4rem 0.8rem", backgroundColor: "#e8f0fe", color: "#1a56db", border: "none", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" }}
-            >
-              + Add Crossing
-            </button>
-          </div>
-
-          {borderCrossings.length === 0 && (
-            <p style={{ color: "#999", fontSize: "0.9rem" }}>No border crossings for this trip.</p>
-          )}
-
-          {borderCrossings.map((entry, index) => (
-            <div key={entry.id} style={{ border: "1px solid #eee", borderRadius: "6px", padding: "1rem", marginBottom: "0.75rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#666" }}>Crossing {index + 1}</span>
-                <button
-                  type="button"
-                  onClick={() => removeBorderCrossing(entry.id)}
-                  style={{ background: "none", border: "none", color: "#d32f2f", fontSize: "0.85rem", cursor: "pointer" }}
-                >
-                  Remove
-                </button>
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Direction</label>
-                <select
-                  value={entry.direction}
-                  onChange={(e) => updateBorderCrossing(entry.id, "direction", e.target.value)}
-                  style={inputStyle}
-                >
-                  <option>Entering US</option>
-                  <option>Returning to Canada</option>
-                </select>
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Jurisdiction Now Entering</label>
-                <select
-                  value={entry.jurisdiction}
-                  onChange={(e) => updateBorderCrossing(entry.id, "jurisdiction", e.target.value)}
-                  style={inputStyle}
-                >
-                  <option>Ontario</option>
-                  <option>Quebec</option>
-                  <option>Michigan</option>
-                  <option>New York</option>
-                  <option>Ohio</option>
-                  <option>Pennsylvania</option>
-                  <option>Indiana</option>
-                  <option>Illinois</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Odometer at Crossing</label>
-                <input
-                  type="number"
-                  value={entry.odometer}
-                  onChange={(e) => updateBorderCrossing(entry.id, "odometer", e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
+      <BillingGate>
+        <form
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.target.tagName !== "TEXTAREA" && e.target.type !== "submit") {
+              e.preventDefault();
+            }
+          }}
+        >
+          <div style={sectionStyle}>
+            <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Trip Info</h2>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Date</label>
+              <input type="date" value={form.date} onChange={handleChange("date")} required style={inputStyle} />
             </div>
-          ))}
-        </div>
-
-        <div style={sectionStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1a1a1a" }}>Hourly Work / Detention Time</h2>
-            <button
-              type="button"
-              onClick={addWorkEntry}
-              style={{ padding: "0.4rem 0.8rem", backgroundColor: "#e8f0fe", color: "#1a56db", border: "none", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" }}
-            >
-              + Add Stop
-            </button>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Trailer #</label>
+              <input type="text" value={form.trailerNumber} onChange={handleChange("trailerNumber")} style={inputStyle} />
+            </div>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Pro #</label>
+              <input type="text" value={form.proNumber} onChange={handleChange("proNumber")} style={inputStyle} />
+            </div>
+            <div style={rowStyle}>
+              <label style={labelStyle}>B/L #</label>
+              <input type="text" value={form.blNumber} onChange={handleChange("blNumber")} style={inputStyle} />
+            </div>
           </div>
 
-          {workEntries.length === 0 && (
-            <p style={{ color: "#999", fontSize: "0.9rem" }}>No stops recorded.</p>
-          )}
+          <div style={sectionStyle}>
+            <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Pickup</h2>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Customer</label>
+              <input type="text" value={form.pickupCustomer} onChange={handleChange("pickupCustomer")} style={inputStyle} />
+            </div>
+            <div style={rowStyle}>
+              <label style={labelStyle}>City, State/Prov</label>
+              <input type="text" value={form.pickupCity} onChange={handleChange("pickupCity")} style={inputStyle} />
+            </div>
+          </div>
 
-          {workEntries.map((entry, index) => {
-            const duration = calculateDuration(entry.arrived, entry.departed);
-            return (
+          <div style={sectionStyle}>
+            <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Delivery</h2>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Customer</label>
+              <input type="text" value={form.deliveryCustomer} onChange={handleChange("deliveryCustomer")} style={inputStyle} />
+            </div>
+            <div style={rowStyle}>
+              <label style={labelStyle}>City, State/Prov</label>
+              <input type="text" value={form.deliveryCity} onChange={handleChange("deliveryCity")} style={inputStyle} />
+            </div>
+          </div>
+
+          <div style={sectionStyle}>
+            <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Mileage</h2>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Starting Odometer</label>
+              <input type="number" value={form.startOdometer} onChange={handleChange("startOdometer")} style={inputStyle} />
+            </div>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Ending Odometer</label>
+              <input type="number" value={form.endOdometer} onChange={handleChange("endOdometer")} style={inputStyle} />
+            </div>
+            {totalMiles && (
+              <p style={{ fontSize: "0.95rem", color: "#1a56db", fontWeight: "600" }}>
+                Total Miles: {totalMiles}
+              </p>
+            )}
+          </div>
+
+          <div style={sectionStyle}>
+            <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Shift Time</h2>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Shift Start</label>
+              <input
+                type="time"
+                value={form.shiftStart}
+                onChange={handleChange("shiftStart")}
+                style={inputStyle}
+              />
+            </div>
+            <div style={rowStyle}>
+              <label style={labelStyle}>Shift End</label>
+              <input
+                type="time"
+                value={form.shiftEnd}
+                onChange={handleChange("shiftEnd")}
+                style={inputStyle}
+              />
+            </div>
+            {totalShiftHours && (
+              <p style={{ fontSize: "0.95rem", color: "#1a56db", fontWeight: "600" }}>
+                Total Hours Worked: {totalShiftHours}
+              </p>
+            )}
+          </div>
+
+          <div style={sectionStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1a1a1a" }}>Border Crossings</h2>
+              <button
+                type="button"
+                onClick={addBorderCrossing}
+                style={{ padding: "0.4rem 0.8rem", backgroundColor: "#e8f0fe", color: "#1a56db", border: "none", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" }}
+              >
+                + Add Crossing
+              </button>
+            </div>
+
+            {borderCrossings.length === 0 && (
+              <p style={{ color: "#999", fontSize: "0.9rem" }}>No border crossings for this trip.</p>
+            )}
+
+            {borderCrossings.map((entry, index) => (
               <div key={entry.id} style={{ border: "1px solid #eee", borderRadius: "6px", padding: "1rem", marginBottom: "0.75rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                  <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#666" }}>Stop {index + 1}</span>
+                  <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#666" }}>Crossing {index + 1}</span>
                   <button
                     type="button"
-                    onClick={() => removeWorkEntry(entry.id)}
+                    onClick={() => removeBorderCrossing(entry.id)}
                     style={{ background: "none", border: "none", color: "#d32f2f", fontSize: "0.85rem", cursor: "pointer" }}
                   >
                     Remove
                   </button>
                 </div>
                 <div style={rowStyle}>
-                  <label style={labelStyle}>Customer - City</label>
+                  <label style={labelStyle}>Direction</label>
+                  <select
+                    value={entry.direction}
+                    onChange={(e) => updateBorderCrossing(entry.id, "direction", e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option>Entering US</option>
+                    <option>Returning to Canada</option>
+                  </select>
+                </div>
+                <div style={rowStyle}>
+                  <label style={labelStyle}>Jurisdiction Now Entering</label>
+                  <select
+                    value={entry.jurisdiction}
+                    onChange={(e) => updateBorderCrossing(entry.id, "jurisdiction", e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option>Ontario</option>
+                    <option>Quebec</option>
+                    <option>Michigan</option>
+                    <option>New York</option>
+                    <option>Ohio</option>
+                    <option>Pennsylvania</option>
+                    <option>Indiana</option>
+                    <option>Illinois</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div style={rowStyle}>
+                  <label style={labelStyle}>Odometer at Crossing</label>
+                  <input
+                    type="number"
+                    value={entry.odometer}
+                    onChange={(e) => updateBorderCrossing(entry.id, "odometer", e.target.value)}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={sectionStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1a1a1a" }}>Hourly Work / Detention Time</h2>
+              <button
+                type="button"
+                onClick={addWorkEntry}
+                style={{ padding: "0.4rem 0.8rem", backgroundColor: "#e8f0fe", color: "#1a56db", border: "none", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" }}
+              >
+                + Add Stop
+              </button>
+            </div>
+
+            {workEntries.length === 0 && (
+              <p style={{ color: "#999", fontSize: "0.9rem" }}>No stops recorded.</p>
+            )}
+
+            {workEntries.map((entry, index) => {
+              const duration = calculateDuration(entry.arrived, entry.departed);
+              return (
+                <div key={entry.id} style={{ border: "1px solid #eee", borderRadius: "6px", padding: "1rem", marginBottom: "0.75rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                    <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#666" }}>Stop {index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeWorkEntry(entry.id)}
+                      style={{ background: "none", border: "none", color: "#d32f2f", fontSize: "0.85rem", cursor: "pointer" }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div style={rowStyle}>
+                    <label style={labelStyle}>Customer - City</label>
+                    <input
+                      type="text"
+                      value={entry.customerCity}
+                      onChange={(e) => updateWorkEntry(entry.id, "customerCity", e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div style={rowStyle}>
+                    <label style={labelStyle}>Arrived</label>
+                    <input
+                      type="time"
+                      value={entry.arrived}
+                      onChange={(e) => updateWorkEntry(entry.id, "arrived", e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div style={rowStyle}>
+                    <label style={labelStyle}>Departed</label>
+                    <input
+                      type="time"
+                      value={entry.departed}
+                      onChange={(e) => updateWorkEntry(entry.id, "departed", e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
+                  {duration && (
+                    <p style={{ fontSize: "0.9rem", color: "#1a56db", fontWeight: "600" }}>
+                      Duration: {duration}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={sectionStyle}>
+            <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Load Received Paperwork</h2>
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              capture="environment"
+              multiple
+              onChange={(e) => handleLoadReceivedChange(e.target.files)}
+              className="file-upload-btn"
+              style={{ marginBottom: "0.75rem" }}
+            />
+            {loadReceivedFiles.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                {loadReceivedFiles.map((item, index) => (
+                  <div key={index} style={{ position: "relative" }}>
+                    <img src={item.preview} alt="Load received doc" style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px", border: "1px solid #ccc", opacity: item.enhancing ? 0.5 : 1 }} />
+                    <button
+                      type="button"
+                      onClick={() => removeLoadReceivedFile(index)}
+                      style={{ position: "absolute", top: "-6px", right: "-6px", background: "#d32f2f", color: "white", border: "none", borderRadius: "50%", width: "20px", height: "20px", fontSize: "0.7rem", cursor: "pointer" }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={sectionStyle}>
+            <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Load Delivered Paperwork</h2>
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              capture="environment"
+              multiple
+              onChange={(e) => handleLoadDeliveredChange(e.target.files)}
+              className="file-upload-btn"
+              style={{ marginBottom: "0.75rem" }}
+            />
+            {loadDeliveredFiles.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                {loadDeliveredFiles.map((item, index) => (
+                  <div key={index} style={{ position: "relative" }}>
+                    <img src={item.preview} alt="Load delivered doc" style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px", border: "1px solid #ccc", opacity: item.enhancing ? 0.5 : 1 }} />
+                    <button
+                      type="button"
+                      onClick={() => removeLoadDeliveredFile(index)}
+                      style={{ position: "absolute", top: "-6px", right: "-6px", background: "#d32f2f", color: "white", border: "none", borderRadius: "50%", width: "20px", height: "20px", fontSize: "0.7rem", cursor: "pointer" }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={sectionStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1a1a1a" }}>Fuel Purchases</h2>
+              <button
+                type="button"
+                onClick={addFuelEntry}
+                style={{ padding: "0.4rem 0.8rem", backgroundColor: "#e8f0fe", color: "#1a56db", border: "none", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" }}
+              >
+                + Add Fuel
+              </button>
+            </div>
+
+            {fuelEntries.length === 0 && (
+              <p style={{ color: "#999", fontSize: "0.9rem" }}>No fuel entries yet.</p>
+            )}
+
+            {fuelEntries.map((entry, index) => (
+              <div key={entry.id} style={{ border: "1px solid #eee", borderRadius: "6px", padding: "1rem", marginBottom: "0.75rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#666" }}>Entry {index + 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeFuelEntry(entry.id)}
+                    style={{ background: "none", border: "none", color: "#d32f2f", fontSize: "0.85rem", cursor: "pointer" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div style={rowStyle}>
+                  <label style={labelStyle}>Station, City, State</label>
                   <input
                     type="text"
-                    value={entry.customerCity}
-                    onChange={(e) => updateWorkEntry(entry.id, "customerCity", e.target.value)}
+                    value={entry.location}
+                    onChange={(e) => updateFuelEntry(entry.id, "location", e.target.value)}
                     style={inputStyle}
                   />
                 </div>
                 <div style={rowStyle}>
-                  <label style={labelStyle}>Arrived</label>
+                  <label style={labelStyle}>Quantity (L or G)</label>
                   <input
-                    type="time"
-                    value={entry.arrived}
-                    onChange={(e) => updateWorkEntry(entry.id, "arrived", e.target.value)}
+                    type="number"
+                    value={entry.quantity}
+                    onChange={(e) => updateFuelEntry(entry.id, "quantity", e.target.value)}
                     style={inputStyle}
                   />
                 </div>
                 <div style={rowStyle}>
-                  <label style={labelStyle}>Departed</label>
+                  <label style={labelStyle}>Total Cost ($)</label>
                   <input
-                    type="time"
-                    value={entry.departed}
-                    onChange={(e) => updateWorkEntry(entry.id, "departed", e.target.value)}
+                    type="number"
+                    value={entry.cost}
+                    onChange={(e) => updateFuelEntry(entry.id, "cost", e.target.value)}
                     style={inputStyle}
                   />
                 </div>
-                {duration && (
-                  <p style={{ fontSize: "0.9rem", color: "#1a56db", fontWeight: "600" }}>
-                    Duration: {duration}
-                  </p>
-                )}
+                <div style={rowStyle}>
+                  <label style={labelStyle}>Receipt Photo</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => handleReceiptChange(entry.id, e.target.files[0])}
+                    className="file-upload-btn"
+                  />
+                  {entry.enhancing && (
+                    <p style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.5rem" }}>Enhancing photo...</p>
+                  )}
+                  {entry.receiptPreview && !entry.enhancing && (
+                    <div>
+                      <img
+                        src={entry.receiptPreview}
+                        alt="Receipt preview"
+                        style={{ marginTop: "0.5rem", maxWidth: "150px", borderRadius: "4px", border: "1px solid #ccc" }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
 
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Load Received Paperwork</h2>
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            capture="environment"
-            multiple
-            onChange={(e) => handleLoadReceivedChange(e.target.files)}
-            className="file-upload-btn"
-            style={{ marginBottom: "0.75rem" }}
-          />
-          {loadReceivedFiles.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              {loadReceivedFiles.map((item, index) => (
-                <div key={index} style={{ position: "relative" }}>
-                  <img src={item.preview} alt="Load received doc" style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px", border: "1px solid #ccc", opacity: item.enhancing ? 0.5 : 1 }} />
-                  <button
-                    type="button"
-                    onClick={() => removeLoadReceivedFile(index)}
-                    style={{ position: "absolute", top: "-6px", right: "-6px", background: "#d32f2f", color: "white", border: "none", borderRadius: "50%", width: "20px", height: "20px", fontSize: "0.7rem", cursor: "pointer" }}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Load Delivered Paperwork</h2>
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            capture="environment"
-            multiple
-            onChange={(e) => handleLoadDeliveredChange(e.target.files)}
-            className="file-upload-btn"
-            style={{ marginBottom: "0.75rem" }}
-          />
-          {loadDeliveredFiles.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              {loadDeliveredFiles.map((item, index) => (
-                <div key={index} style={{ position: "relative" }}>
-                  <img src={item.preview} alt="Load delivered doc" style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px", border: "1px solid #ccc", opacity: item.enhancing ? 0.5 : 1 }} />
-                  <button
-                    type="button"
-                    onClick={() => removeLoadDeliveredFile(index)}
-                    style={{ position: "absolute", top: "-6px", right: "-6px", background: "#d32f2f", color: "white", border: "none", borderRadius: "50%", width: "20px", height: "20px", fontSize: "0.7rem", cursor: "pointer" }}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div style={sectionStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1a1a1a" }}>Fuel Purchases</h2>
-            <button
-              type="button"
-              onClick={addFuelEntry}
-              style={{ padding: "0.4rem 0.8rem", backgroundColor: "#e8f0fe", color: "#1a56db", border: "none", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" }}
-            >
-              + Add Fuel
-            </button>
+            {fuelEntries.length > 0 && (
+              <p style={{ fontSize: "0.95rem", color: "#1a56db", fontWeight: "600", marginTop: "0.5rem" }}>
+                Total Fuel Cost: ${totalFuelCost.toFixed(2)}
+              </p>
+            )}
           </div>
 
-          {fuelEntries.length === 0 && (
-            <p style={{ color: "#999", fontSize: "0.9rem" }}>No fuel entries yet.</p>
-          )}
-
-          {fuelEntries.map((entry, index) => (
-            <div key={entry.id} style={{ border: "1px solid #eee", borderRadius: "6px", padding: "1rem", marginBottom: "0.75rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#666" }}>Entry {index + 1}</span>
-                <button
-                  type="button"
-                  onClick={() => removeFuelEntry(entry.id)}
-                  style={{ background: "none", border: "none", color: "#d32f2f", fontSize: "0.85rem", cursor: "pointer" }}
-                >
-                  Remove
-                </button>
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Station, City, State</label>
-                <input
-                  type="text"
-                  value={entry.location}
-                  onChange={(e) => updateFuelEntry(entry.id, "location", e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Quantity (L or G)</label>
-                <input
-                  type="number"
-                  value={entry.quantity}
-                  onChange={(e) => updateFuelEntry(entry.id, "quantity", e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Total Cost ($)</label>
-                <input
-                  type="number"
-                  value={entry.cost}
-                  onChange={(e) => updateFuelEntry(entry.id, "cost", e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Receipt Photo</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => handleReceiptChange(entry.id, e.target.files[0])}
-                  className="file-upload-btn"
-                />
-                {entry.enhancing && (
-                  <p style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.5rem" }}>Enhancing photo...</p>
-                )}
-                {entry.receiptPreview && !entry.enhancing && (
-                  <div>
-                    <img
-                      src={entry.receiptPreview}
-                      alt="Receipt preview"
-                      style={{ marginTop: "0.5rem", maxWidth: "150px", borderRadius: "4px", border: "1px solid #ccc" }}
-                    />
-                  </div>
-                )}
-              </div>
+          <div style={sectionStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1a1a1a" }}>Expenses</h2>
+              <button
+                type="button"
+                onClick={addExpenseEntry}
+                style={{ padding: "0.4rem 0.8rem", backgroundColor: "#e8f0fe", color: "#1a56db", border: "none", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" }}
+              >
+                + Add Expense
+              </button>
             </div>
-          ))}
 
-          {fuelEntries.length > 0 && (
-            <p style={{ fontSize: "0.95rem", color: "#1a56db", fontWeight: "600", marginTop: "0.5rem" }}>
-              Total Fuel Cost: ${totalFuelCost.toFixed(2)}
-            </p>
-          )}
-        </div>
+            {expenseEntries.length === 0 && (
+              <p style={{ color: "#999", fontSize: "0.9rem" }}>No expenses yet.</p>
+            )}
 
-        <div style={sectionStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h2 style={{ fontSize: "1rem", fontWeight: "600", color: "#1a1a1a" }}>Expenses</h2>
-            <button
-              type="button"
-              onClick={addExpenseEntry}
-              style={{ padding: "0.4rem 0.8rem", backgroundColor: "#e8f0fe", color: "#1a56db", border: "none", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" }}
-            >
-              + Add Expense
-            </button>
+            {expenseEntries.map((entry, index) => (
+              <div key={entry.id} style={{ border: "1px solid #eee", borderRadius: "6px", padding: "1rem", marginBottom: "0.75rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#666" }}>Expense {index + 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeExpenseEntry(entry.id)}
+                    style={{ background: "none", border: "none", color: "#d32f2f", fontSize: "0.85rem", cursor: "pointer" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div style={rowStyle}>
+                  <label style={labelStyle}>Category</label>
+                  <select
+                    value={entry.category}
+                    onChange={(e) => updateExpenseEntry(entry.id, "category", e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option>Toll</option>
+                    <option>Parking</option>
+                    <option>Meals</option>
+                    <option>Lodging</option>
+                    <option>Repairs</option>
+                    <option>Scales</option>
+                    <option>Permits</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div style={rowStyle}>
+                  <label style={labelStyle}>Amount ($)</label>
+                  <input
+                    type="number"
+                    value={entry.amount}
+                    onChange={(e) => updateExpenseEntry(entry.id, "amount", e.target.value)}
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={rowStyle}>
+                  <label style={labelStyle}>Description</label>
+                  <input
+                    type="text"
+                    value={entry.description}
+                    onChange={(e) => updateExpenseEntry(entry.id, "description", e.target.value)}
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={rowStyle}>
+                  <label style={labelStyle}>Receipt Photo</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => handleExpenseReceiptChange(entry.id, e.target.files[0])}
+                    className="file-upload-btn"
+                  />
+                  {entry.enhancing && (
+                    <p style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.5rem" }}>Enhancing photo...</p>
+                  )}
+                  {entry.receiptPreview && !entry.enhancing && (
+                    <div>
+                      <img
+                        src={entry.receiptPreview}
+                        alt="Receipt preview"
+                        style={{ marginTop: "0.5rem", maxWidth: "150px", borderRadius: "4px", border: "1px solid #ccc" }}
+                      />
+                      <p style={{ fontSize: "0.75rem", color: "#1a7d36", marginTop: "0.25rem" }}>✓ Enhanced for clarity</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {expenseEntries.length > 0 && (
+              <p style={{ fontSize: "0.95rem", color: "#1a56db", fontWeight: "600", marginTop: "0.5rem" }}>
+                Total Expenses: ${totalExpenseCost.toFixed(2)}
+              </p>
+            )}
           </div>
 
-          {expenseEntries.length === 0 && (
-            <p style={{ color: "#999", fontSize: "0.9rem" }}>No expenses yet.</p>
-          )}
+          <div style={sectionStyle}>
+            <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Notes</h2>
+            <textarea value={form.notes} onChange={handleChange("notes")} rows={3} style={inputStyle} />
+          </div>
 
-          {expenseEntries.map((entry, index) => (
-            <div key={entry.id} style={{ border: "1px solid #eee", borderRadius: "6px", padding: "1rem", marginBottom: "0.75rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#666" }}>Expense {index + 1}</span>
-                <button
-                  type="button"
-                  onClick={() => removeExpenseEntry(entry.id)}
-                  style={{ background: "none", border: "none", color: "#d32f2f", fontSize: "0.85rem", cursor: "pointer" }}
-                >
-                  Remove
-                </button>
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Category</label>
-                <select
-                  value={entry.category}
-                  onChange={(e) => updateExpenseEntry(entry.id, "category", e.target.value)}
-                  style={inputStyle}
-                >
-                  <option>Toll</option>
-                  <option>Parking</option>
-                  <option>Meals</option>
-                  <option>Lodging</option>
-                  <option>Repairs</option>
-                  <option>Scales</option>
-                  <option>Permits</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Amount ($)</label>
-                <input
-                  type="number"
-                  value={entry.amount}
-                  onChange={(e) => updateExpenseEntry(entry.id, "amount", e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Description</label>
-                <input
-                  type="text"
-                  value={entry.description}
-                  onChange={(e) => updateExpenseEntry(entry.id, "description", e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-              <div style={rowStyle}>
-                <label style={labelStyle}>Receipt Photo</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => handleExpenseReceiptChange(entry.id, e.target.files[0])}
-                  className="file-upload-btn"
-                />
-                {entry.enhancing && (
-                  <p style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.5rem" }}>Enhancing photo...</p>
-                )}
-                {entry.receiptPreview && !entry.enhancing && (
-                  <div>
-                    <img
-                      src={entry.receiptPreview}
-                      alt="Receipt preview"
-                      style={{ marginTop: "0.5rem", maxWidth: "150px", borderRadius: "4px", border: "1px solid #ccc" }}
-                    />
-                    <p style={{ fontSize: "0.75rem", color: "#1a7d36", marginTop: "0.25rem" }}>✓ Enhanced for clarity</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+          {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
 
-          {expenseEntries.length > 0 && (
-            <p style={{ fontSize: "0.95rem", color: "#1a56db", fontWeight: "600", marginTop: "0.5rem" }}>
-              Total Expenses: ${totalExpenseCost.toFixed(2)}
-            </p>
-          )}
-        </div>
-
-        <div style={sectionStyle}>
-          <h2 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "1rem", color: "#1a1a1a" }}>Notes</h2>
-          <textarea value={form.notes} onChange={handleChange("notes")} rows={3} style={inputStyle} />
-        </div>
-
-        {error && <p style={{ color: "#d32f2f", fontSize: "0.9rem", marginBottom: "1rem" }}>{error}</p>}
-
-        <button
-          type="submit"
-          disabled={saving}
-          style={{ width: "100%", padding: "0.9rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "8px", fontSize: "1.05rem", fontWeight: "600", cursor: "pointer" }}
-        >
-          {saving ? "Submitting..." : "Submit Trip"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={saving}
+            style={{ width: "100%", padding: "0.9rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "8px", fontSize: "1.05rem", fontWeight: "600", cursor: "pointer" }}
+          >
+            {saving ? "Submitting..." : "Submit Trip"}
+          </button>
+        </form>
+      </BillingGate>
 
       {croppingFuelId && pendingFuelFile && (
         <CropTool file={pendingFuelFile} onDone={handleCropDone} onCancel={handleCropCancel} />

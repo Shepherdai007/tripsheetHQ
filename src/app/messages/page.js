@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, deleteDoc, updateDoc, addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import BillingGate from "@/components/BillingGate";
 
 export default function MessagesPage() {
   const router = useRouter();
@@ -287,6 +288,7 @@ export default function MessagesPage() {
           </div>
         )}
 
+        <BillingGate>
         <form
           onSubmit={handleReplySend}
           style={{
@@ -339,6 +341,7 @@ export default function MessagesPage() {
             {sending ? "Sending..." : "Send"}
           </button>
         </form>
+        </BillingGate>
       </div>
     </div>
   );

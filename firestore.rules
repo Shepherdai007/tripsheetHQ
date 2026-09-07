@@ -8,6 +8,10 @@ service cloud.firestore {
     function myCompanyId() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
     }
+    function isCompanyActive(companyId) {
+      return companyId != null &&
+        get(/databases/$(database)/documents/companies/$(companyId)).data.subscriptionStatus in ["trialing", "active"];
+    }
     match /companies/{companyId} {
       allow read: if true;
       allow create: if request.auth != null;
@@ -18,12 +22,12 @@ service cloud.firestore {
       allow read: if isAdmin() && resource.data.companyId == myCompanyId();
     }
     match /trips/{tripId} {
-      allow create: if request.auth != null && request.resource.data.driverId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.driverId == request.auth.uid && isCompanyActive(request.resource.data.companyId);
       allow read, update, delete: if request.auth != null && resource.data.driverId == request.auth.uid;
       allow read: if isAdmin() && resource.data.companyId == myCompanyId();
     }
     match /documents/{docId} {
-      allow create: if isAdmin();
+      allow create: if isAdmin() && isCompanyActive(myCompanyId());
       allow read: if request.auth != null && (resource.data.driverId == request.auth.uid || (isAdmin() && resource.data.companyId == myCompanyId()));
       allow update: if isAdmin() && resource.data.companyId == myCompanyId();
       allow delete: if (isAdmin() && resource.data.companyId == myCompanyId()) || (request.auth != null && resource.data.driverId == request.auth.uid);
@@ -31,13 +35,15 @@ service cloud.firestore {
     match /messages/{messageId} {
       allow create: if (isAdmin() &&
         request.resource.data.companyId == myCompanyId() &&
+        isCompanyActive(myCompanyId()) &&
         exists(/databases/$(database)/documents/users/$(request.resource.data.driverId)) &&
         get(/databases/$(database)/documents/users/$(request.resource.data.driverId)).data.companyId == myCompanyId()
       ) || (
         request.auth != null &&
         request.resource.data.driverId == request.auth.uid &&
         request.resource.data.senderRole == "driver" &&
-        request.resource.data.companyId == myCompanyId()
+        request.resource.data.companyId == myCompanyId() &&
+        isCompanyActive(myCompanyId())
       );
       allow read: if request.auth != null && (resource.data.driverId == request.auth.uid || (isAdmin() && resource.data.companyId == myCompanyId()));
       allow update: if (isAdmin() && resource.data.companyId == myCompanyId()) || (request.auth != null && resource.data.driverId == request.auth.uid);
@@ -45,7 +51,7 @@ service cloud.firestore {
     }
     match /timeOffRequests/{requestId} {
       // Drivers can submit their own requests
-      allow create: if request.auth != null && request.resource.data.driverId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.driverId == request.auth.uid && isCompanyActive(request.resource.data.companyId);
       // Drivers can read their own; admins can read all requests for their company
       allow read: if request.auth != null && (resource.data.driverId == request.auth.uid || (isAdmin() && resource.data.companyId == myCompanyId()));
       // Only admins can approve/deny/mark paid, and only for their own company

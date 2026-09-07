@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, collection, query, where, getDocs, addDoc, orderBy, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import BillingGate from "@/components/BillingGate";
 import MessagesNavLink from "@/components/MessagesNavLink";
 import TimeOffNavLink from "@/components/TimeOffNavLink";
 
@@ -261,42 +262,44 @@ export default function AdminMessagesPage() {
             marginBottom: "1.5rem",
           }}
         >
-          <form onSubmit={handleSend}>
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={labelStyle}>Driver</label>
-              <select value={selectedDriver} onChange={(e) => setSelectedDriver(e.target.value)} style={inputStyle}>
-                <option value="">Select a driver...</option>
-                {drivers.map((driver) => (
-                  <option key={driver.id} value={driver.id}>
-                    {driver.name} ({driver.email})
-                  </option>
-                ))}
-              </select>
-            </div>
+          <BillingGate>
+            <form onSubmit={handleSend}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label style={labelStyle}>Driver</label>
+                <select value={selectedDriver} onChange={(e) => setSelectedDriver(e.target.value)} style={inputStyle}>
+                  <option value="">Select a driver...</option>
+                  {drivers.map((driver) => (
+                    <option key={driver.id} value={driver.id}>
+                      {driver.name} ({driver.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label style={labelStyle}>Message</label>
-              <textarea
-                ref={textareaRef}
-                value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
-                rows={4}
-                style={inputStyle}
-                placeholder="e.g. Pickup delayed 2 hours, new ETA 4pm"
-              />
-            </div>
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label style={labelStyle}>Message</label>
+                <textarea
+                  ref={textareaRef}
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  rows={4}
+                  style={inputStyle}
+                  placeholder="e.g. Pickup delayed 2 hours, new ETA 4pm"
+                />
+              </div>
 
-            {error && <p style={{ color: "#ffb4b4", fontSize: "0.9rem", marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{error}</p>}
-            {message && <p style={{ color: "#9dffb0", fontSize: "0.9rem", marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{message}</p>}
+              {error && <p style={{ color: "#ffb4b4", fontSize: "0.9rem", marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{error}</p>}
+              {message && <p style={{ color: "#9dffb0", fontSize: "0.9rem", marginBottom: "1rem", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{message}</p>}
 
-            <button
-              type="submit"
-              disabled={sending}
-              style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "6px", fontSize: "1rem", fontWeight: "600", cursor: "pointer", boxShadow: "0 4px 14px rgba(26,86,219,0.5)" }}
-            >
-              {sending ? "Sending..." : "Send Message"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={sending}
+                style={{ width: "100%", padding: "0.75rem", backgroundColor: "#1a56db", color: "white", border: "none", borderRadius: "6px", fontSize: "1rem", fontWeight: "600", cursor: "pointer", boxShadow: "0 4px 14px rgba(26,86,219,0.5)" }}
+              >
+                {sending ? "Sending..." : "Send Message"}
+              </button>
+            </form>
+          </BillingGate>
         </div>
 
         <div
