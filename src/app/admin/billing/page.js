@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import MessagesNavLink from "@/components/MessagesNavLink";
+import TimeOffNavLink from "@/components/TimeOffNavLink";
 
 const PLAN_NAMES = {
   price_1UAEx83OTOyp0aV0xhhzqPp5: "Starter",
@@ -151,9 +152,7 @@ export default function AdminBillingPage() {
               Documents
             </button>
             <MessagesNavLink router={router} active={false} />
-            <button style={navButtonStyle} onClick={() => router.push("/admin/time-off")}>
-              Time Off
-            </button>
+            <TimeOffNavLink router={router} active={false} />
             <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
               Branding
             </button>

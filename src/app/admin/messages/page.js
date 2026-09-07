@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, collection, query, where, getDocs, addDoc, orderBy, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import MessagesNavLink from "@/components/MessagesNavLink";
+import TimeOffNavLink from "@/components/TimeOffNavLink";
 
 export default function AdminMessagesPage() {
   const router = useRouter();
@@ -217,9 +218,7 @@ export default function AdminMessagesPage() {
               Documents
             </button>
             <MessagesNavLink router={router} active={true} />
-            <button style={navButtonStyle} onClick={() => router.push("/admin/time-off")}>
-              Time Off
-            </button>
+            <TimeOffNavLink router={router} active={false} />
             <button style={navButtonStyle} onClick={() => router.push("/admin/branding")}>
               Branding
             </button>

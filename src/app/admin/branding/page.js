@@ -7,6 +7,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db } from "@/lib/firebase";
 import MessagesNavLink from "@/components/MessagesNavLink";
+import TimeOffNavLink from "@/components/TimeOffNavLink";
 
 export default function BrandingPage() {
   const router = useRouter();
@@ -171,9 +172,7 @@ export default function BrandingPage() {
               Documents
             </button>
             <MessagesNavLink router={router} active={false} />
-            <button style={navButtonStyle} onClick={() => router.push("/admin/time-off")}>
-              Time Off
-            </button>
+            <TimeOffNavLink router={router} active={false} />
             <button style={{ ...navButtonStyle, color: "#1a56db" }} onClick={() => router.push("/admin/branding")}>
               Branding
             </button>
