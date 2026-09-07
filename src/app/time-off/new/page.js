@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
@@ -35,44 +34,42 @@ export default function TimeOffRequestPage() {
       return;
     }
 
-    setSubmitting(true);
+    const user = auth.currentUser;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        router.push("/login");
+    setSubmitting(true);
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) {
+        setError("Could not find your account. Please try again.");
+        setSubmitting(false);
         return;
       }
 
-      try {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) {
-          setError("Could not find your account. Please try again.");
-          setSubmitting(false);
-          return;
-        }
+      const userData = userDoc.data();
 
-        const userData = userDoc.data();
+      await addDoc(collection(db, "timeOffRequests"), {
+        driverId: user.uid,
+        driverName: userData.name || "",
+        companyId: userData.companyId || null,
+        leaveType,
+        datesRequested,
+        datesReturned,
+        notes: notes.trim(),
+        status: "pending",
+        paid: null,
+        submittedAt: new Date().toISOString(),
+      });
 
-        await addDoc(collection(db, "timeOffRequests"), {
-          driverId: user.uid,
-          driverName: userData.name || "",
-          companyId: userData.companyId || null,
-          leaveType,
-          datesRequested,
-          datesReturned,
-          notes: notes.trim(),
-          status: "pending", // pending | approved | denied
-          paid: null, // set by admin: true | false | null
-          submittedAt: new Date().toISOString(),
-        });
-
-        setSuccess(true);
-      } catch (err) {
-        setError("Something went wrong submitting your request. Please try again.");
-      } finally {
-        setSubmitting(false);
-      }
-    });
+      setSuccess(true);
+    } catch (err) {
+      setError("Something went wrong submitting your request. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const inputStyle = {

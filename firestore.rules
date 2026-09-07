@@ -49,7 +49,7 @@ service cloud.firestore {
       allow read: if request.auth != null && (resource.data.driverId == request.auth.uid || (isAdmin() && resource.data.companyId == myCompanyId()));
       // Only admins can approve/deny/mark paid, and only for their own company
       allow update: if isAdmin() && resource.data.companyId == myCompanyId();
-      allow delete: if isAdmin() && resource.data.companyId == myCompanyId();
+      allow delete: if (isAdmin() && resource.data.companyId == myCompanyId()) || (request.auth != null && resource.data.driverId == request.auth.uid);
     }
   }
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, updateDoc, collection, query, where, orderBy, getDocs } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import MessagesNavLink from "@/components/MessagesNavLink";
 
@@ -92,6 +92,18 @@ export default function AdminTimeOffPage() {
       console.error("Error updating paid status:", err);
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteRequest = async (requestId, driverName) => {
+    const confirmed = window.confirm(`Delete ${driverName || "this driver"}'s time off request? This can't be undone.`);
+    if (!confirmed) return;
+
+    try {
+      await deleteDoc(doc(db, "timeOffRequests", requestId));
+      setRequests((prev) => prev.filter((r) => r.id !== requestId));
+    } catch (err) {
+      console.error("Error deleting request:", err);
     }
   };
 
@@ -316,6 +328,23 @@ export default function AdminTimeOffPage() {
                       </button>
                     </div>
                   )}
+
+                  <button
+                    onClick={() => handleDeleteRequest(req.id, req.driverName)}
+                    style={{
+                      padding: "0.5rem 1rem",
+                      backgroundColor: "transparent",
+                      color: "#b91c1c",
+                      border: "1px solid #b91c1c",
+                      borderRadius: "6px",
+                      fontSize: "0.85rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      marginLeft: "auto",
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             );

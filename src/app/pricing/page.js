@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
@@ -46,41 +45,40 @@ export default function PricingPage() {
     setError("");
     setLoadingPlan(planId);
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        router.push("/login");
-        return;
-      }
+    const user = auth.currentUser;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (!userDoc.exists() || userDoc.data().role !== "admin") {
-        setError("Only company admins can manage billing. Please log in as an admin.");
-        setLoadingPlan(null);
-        return;
-      }
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists() || userDoc.data().role !== "admin") {
+      setError("Only company admins can manage billing. Please log in as an admin.");
+      setLoadingPlan(null);
+      return;
+    }
 
-      const companyId = userDoc.data().companyId;
+    const companyId = userDoc.data().companyId;
 
-      try {
-        const res = await fetch("/api/create-checkout-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ priceId, companyId, userId: user.uid }),
-        });
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId, companyId, userId: user.uid }),
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          setError(data.error || "Something went wrong. Please try again.");
-          setLoadingPlan(null);
-        }
-      } catch (err) {
-        setError("Something went wrong. Please try again.");
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || "Something went wrong. Please try again.");
         setLoadingPlan(null);
       }
-    });
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+      setLoadingPlan(null);
+    }
   };
 
   return (

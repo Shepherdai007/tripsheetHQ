@@ -113,6 +113,18 @@ export default function DashboardPage() {
     setTrips(trips.filter((t) => t.id !== tripId));
   };
 
+  const handleClearTimeOffHistory = async () => {
+    const confirmed = window.confirm("Delete your entire time off request history? This can't be undone.");
+    if (!confirmed) return;
+
+    try {
+      await Promise.all(timeOffRequests.map((req) => deleteDoc(doc(db, "timeOffRequests", req.id))));
+      setTimeOffRequests([]);
+    } catch (err) {
+      console.error("Error clearing time off history:", err);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -317,9 +329,26 @@ export default function DashboardPage() {
                 marginTop: "2rem",
               }}
             >
-              <h2 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "1rem", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-                My Time Off Requests
-              </h2>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.5)", margin: 0 }}>
+                  My Time Off Requests
+                </h2>
+                <button
+                  onClick={handleClearTimeOffHistory}
+                  style={{
+                    background: "none",
+                    border: "1px solid rgba(255,107,107,0.6)",
+                    color: "#ff6b6b",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    padding: "0.35rem 0.7rem",
+                    borderRadius: "6px",
+                  }}
+                >
+                  Clear History
+                </button>
+              </div>
               {timeOffRequests.map((req) => {
                 const statusColors = {
                   pending: { bg: "rgba(254,243,224,0.9)", color: "#b26a00" },
