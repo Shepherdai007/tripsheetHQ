@@ -34,12 +34,15 @@ export default function Footer() {
         >
           WhatsApp
         </a>
-        {/* Facebook link goes here once the page URL is ready:
         <span style={{ margin: "0 10px" }}>·</span>
-        <a href="FACEBOOK_URL_HERE" target="_blank" rel="noopener noreferrer" style={{ color: "#6B7280", textDecoration: "underline" }}>
+        <a
+          href="https://www.facebook.com/tripsheetHQ/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "#6B7280", textDecoration: "underline" }}
+        >
           Facebook
         </a>
-        */}
       </div>
     </footer>
   );
