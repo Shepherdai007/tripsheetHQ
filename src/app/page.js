@@ -25,7 +25,7 @@ export const metadata = {
       "One dashboard for trip logs, ACE/ACI documents, and dispatch messages. Built for trucking fleets.",
     url: "https://tripsheethq.com",
     siteName: "TripsheetHQ",
-    images: [{ url: "/images/messages-bg.jpg", width: 1200, height: 630 }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "en_US",
     type: "website",
   },
@@ -34,7 +34,7 @@ export const metadata = {
     title: "TripsheetHQ — Trip Sheets, Documents & Dispatch Messaging",
     description:
       "One dashboard for trip logs, ACE/ACI documents, and dispatch messages. Built for trucking fleets.",
-    images: ["/images/messages-bg.jpg"],
+    images: ["/og-image.png"],
   },
 };
 
