@@ -28,6 +28,29 @@ export const metadata = {
     ],
     apple: "/apple-touch-icon.png",
   },
+  metadataBase: new URL("https://tripsheethq.com"),
+  openGraph: {
+    type: "website",
+    url: "https://tripsheethq.com",
+    siteName: "TripSheetHQ",
+    title: "TripSheetHQ — Trip Sheets, ACE/ACI Documents & Dispatch Messaging",
+    description: "TripSheetHQ replaces paper trip logs and scattered texts with one dashboard your drivers and dispatchers actually use.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "TripSheetHQ — Trip Sheets, ACE/ACI Documents & Dispatch Messaging",
+      },
+    ],
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TripSheetHQ — Trip Sheets, ACE/ACI Documents & Dispatch Messaging",
+    description: "TripSheetHQ replaces paper trip logs and scattered texts with one dashboard your drivers and dispatchers actually use.",
+    images: ["/og-image.png"],
+  },
 };
 
 export const viewport = {
