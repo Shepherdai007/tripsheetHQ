@@ -1,3 +1,9 @@
+export const metadata = {
+  title: "Terms of Service — TripSheetHQ",
+  description: "Terms of Service for TripSheetHQ, the digital trip sheet, ACE/ACI document and dispatch messaging app for trucking companies.",
+  alternates: { canonical: "/terms" },
+};
+
 export default function TermsOfServicePage() {
   return (
     <div style={{ maxWidth: "760px", margin: "0 auto", padding: "48px 20px" }}>

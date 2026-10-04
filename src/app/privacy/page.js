@@ -1,3 +1,9 @@
+export const metadata = {
+  title: "Privacy Policy — TripSheetHQ",
+  description: "How TripSheetHQ collects, uses and protects data for trucking companies, dispatchers and drivers.",
+  alternates: { canonical: "/privacy" },
+};
+
 export default function PrivacyPolicyPage() {
   return (
     <div style={{ maxWidth: "760px", margin: "0 auto", padding: "48px 20px" }}>

@@ -9,6 +9,7 @@ const oswald = Oswald({
 
 export const metadata = {
   metadataBase: new URL("https://tripsheethq.com"),
+  alternates: { canonical: "/" },
   title: "TripsheetHQ — Trip Sheets, ACE/ACI Documents & Dispatch Messaging",
   description:
     "TripsheetHQ replaces paper trip logs and scattered texts with one dashboard. Digital trip sheets, ACE/ACI document delivery, and instant dispatch messaging for trucking fleets.",
