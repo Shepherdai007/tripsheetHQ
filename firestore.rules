@@ -20,6 +20,8 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
       allow read: if isAdmin() && resource.data.companyId == myCompanyId();
+      // Drivers can look up their own company's admins (for message notifications)
+      allow read: if request.auth != null && resource.data.role == "admin" && resource.data.companyId == myCompanyId();
     }
     match /trips/{tripId} {
       allow create: if request.auth != null && request.resource.data.driverId == request.auth.uid && isCompanyActive(request.resource.data.companyId);

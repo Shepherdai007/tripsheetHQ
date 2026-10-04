@@ -37,8 +37,8 @@ export async function POST(request) {
             trialEndsAt: subscription.trial_end
               ? new Date(subscription.trial_end * 1000).toISOString()
               : null,
-            currentPeriodEnd: subscription.current_period_end
-              ? new Date(subscription.current_period_end * 1000).toISOString()
+            currentPeriodEnd: (subscription.current_period_end || subscription.items?.data?.[0]?.current_period_end)
+              ? new Date((subscription.current_period_end || subscription.items?.data?.[0]?.current_period_end) * 1000).toISOString()
               : null,
             updatedAt: new Date().toISOString(),
           });
@@ -56,8 +56,8 @@ export async function POST(request) {
             trialEndsAt: subscription.trial_end
               ? new Date(subscription.trial_end * 1000).toISOString()
               : null,
-            currentPeriodEnd: subscription.current_period_end
-              ? new Date(subscription.current_period_end * 1000).toISOString()
+            currentPeriodEnd: (subscription.current_period_end || subscription.items?.data?.[0]?.current_period_end)
+              ? new Date((subscription.current_period_end || subscription.items?.data?.[0]?.current_period_end) * 1000).toISOString()
               : null,
             planPriceId: subscription.items?.data?.[0]?.price?.id || null,
             updatedAt: new Date().toISOString(),
