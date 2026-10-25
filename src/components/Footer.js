@@ -22,8 +22,8 @@ export default function Footer() {
       </div>
 
       <div>
-        <a href="mailto:tripsheethq@gmail.com" style={{ color: "#6B7280", textDecoration: "underline" }}>
-          tripsheethq@gmail.com
+        <a href="mailto:support@tripsheethq.com" style={{ color: "#6B7280", textDecoration: "underline" }}>
+          support@tripsheethq.com
         </a>
         <span style={{ margin: "0 10px" }}>·</span>
         <a

@@ -67,7 +67,7 @@ const organizationSchema = {
   url: "https://tripsheethq.com",
   logo: "https://tripsheethq.com/android-chrome-512x512.png",
   description: "Digital trip sheet platform for trucking companies - trip logging, ACE/ACI document delivery, and dispatch messaging.",
-  email: "tripsheethq@gmail.com",
+  email: "support@tripsheethq.com",
   sameAs: [
     "https://wa.me/16478521007",
   ],
